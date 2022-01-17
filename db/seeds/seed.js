@@ -21,7 +21,7 @@ const seed = async (data) => {
   await db.query(
     `CREATE TABLE users(
           username VARCHAR(255) PRIMARY KEY,
-          avatar_url VARCHAR(2000) NOT NULL,
+          avatar_url VARCHAR(255) NOT NULL,
           name VARCHAR(255) NOT NULL
         );`
   );
@@ -31,7 +31,7 @@ const seed = async (data) => {
           title VARCHAR(255) NOT NULL,
           review_body TEXT NOT NULL,
           designer VARCHAR(255) NOT NULL,
-          review_img_url VARCHAR(2000) DEFAULT 'https://images.pexels.com/photos/163064/play-stone-network-networked-interactive-163064.jpeg',
+          review_img_url VARCHAR(255) DEFAULT 'https://images.pexels.com/photos/163064/play-stone-network-networked-interactive-163064.jpeg',
           votes INT DEFAULT 0,
           category VARCHAR(255) NOT NULL REFERENCES categories(slug),
           owner VARCHAR(255) NOT NULL REFERENCES users(username),
