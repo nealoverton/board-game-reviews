@@ -90,5 +90,31 @@ describe("/api/reviews", () => {
         );
       });
     });
+
+    test("Sorts results by date as default", async () => {
+      const response = await request(app).get("/api/reviews");
+      expect(response.status).toBe(200);
+
+      const compareDateStrings = (a, b) => {
+        if (a.created_at < b.created_at) {
+          return -1;
+        }
+        if (a.created_at > b.created_at) {
+          return 1;
+        }
+        return 0;
+      };
+
+      const comparisonArray = [...response.body.reviews];
+      comparisonArray.sort(compareDateStrings);
+
+      expect(response.body.reviews).toEqual(comparisonArray);
+    });
+
+    test("Sorts results by valid column passed as sort_by query", async () => {
+      const response = await request(app).get("/api/reviews?sort_by=votes");
+      expect(response.status).toBe(200);
+      expect(response.body.reviews).toBeSortedBy("votes");
+    });
   });
 });
