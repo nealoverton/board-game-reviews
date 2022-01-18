@@ -53,5 +53,11 @@ describe("/api/reviews/:review_id", () => {
         })
       );
     });
+
+    test("Reponds with status:404 and error messsage when passed non-existent id", async () => {
+      const response = await request(app).get("/api/reviews/1000");
+      expect(response.status).toBe(404);
+      expect(response.body.msg).toBe("Not found");
+    });
   });
 });
