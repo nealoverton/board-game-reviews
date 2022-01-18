@@ -37,21 +37,19 @@ describe("/api/reviews/:review_id", () => {
     test("Reponds with status:200 and the requested review when passed valid id", async () => {
       const response = await request(app).get("/api/reviews/1");
       expect(response.status).toBe(200);
-      expect(response.body.review).toEqual(
-        expect.objectContaining({
-          owner: "mallionaire",
-          title: "Agricola",
-          review_id: 1,
-          review_body: "Farmyard fun!",
-          designer: "Uwe Rosenberg",
-          review_img_url:
-            "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png",
-          category: "euro game",
-          created_at: expect.any(String),
-          votes: 1,
-          comment_count: "0",
-        })
-      );
+      expect(response.body.review).toEqual({
+        owner: "mallionaire",
+        title: "Agricola",
+        review_id: 1,
+        review_body: "Farmyard fun!",
+        designer: "Uwe Rosenberg",
+        review_img_url:
+          "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png",
+        category: "euro game",
+        created_at: expect.any(String),
+        votes: 1,
+        comment_count: "0",
+      });
     });
 
     test("Reponds with status:404 and error messsage when passed non-existent id", async () => {
