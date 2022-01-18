@@ -55,23 +55,17 @@ describe("/api/reviews/:review_id", () => {
     test("Status:404 and error messsage when passed non-existent id", async () => {
       const response = await request(app).get("/api/reviews/1000");
       expect(response.status).toBe(404);
-      expect(response.body.msg).toBe("Not found");
+      expect(response.body.msg).toBe("Id not found");
     });
   });
 
   describe("PATCH", () => {
     test("Status:200 and the updated review when passed valid id", async () => {
       const response = await request(app)
-        .get("/api/reviews/1")
+        .patch("/api/reviews/1")
         .send({ inc_votes: 2 });
       expect(response.status).toBe(200);
       expect(response.body.review.votes).toBe(3);
     });
-
-    // test("Reponds with status:404 and error messsage when passed non-existent id", async () => {
-    //   const response = await request(app).get("/api/reviews/1000");
-    //   expect(response.status).toBe(404);
-    //   expect(response.body.msg).toBe("Not found");
-    // });
   });
 });

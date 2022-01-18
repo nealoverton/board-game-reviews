@@ -13,3 +13,16 @@ exports.selectReviewById = async (review_id) => {
 
   return review.rows[0];
 };
+
+exports.updateReview = async (inc_votes, review_id) => {
+  const review = await db.query(
+    `UPDATE reviews
+    SET votes = votes + $1
+    WHERE review_id = $2
+    RETURNING *
+    ;`,
+    [inc_votes, review_id]
+  );
+
+  return review.rows[0];
+};

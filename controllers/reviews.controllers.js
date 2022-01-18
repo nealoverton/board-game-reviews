@@ -7,7 +7,7 @@ exports.getReviewById = async (req, res, next) => {
     if (review) {
       res.status(200).send({ review });
     } else {
-      throw { status: 404, msg: "Not found" };
+      throw { status: 404, msg: "Id not found" };
     }
   } catch (err) {
     next(err);
@@ -16,7 +16,16 @@ exports.getReviewById = async (req, res, next) => {
 
 exports.patchReview = async (req, res, next) => {
   try {
+    const { inc_votes } = req.body;
     const { review_id } = req.params;
-    const review = await updateReview(review_id);
-  } catch (err) {}
+    const review = await updateReview(inc_votes, review_id);
+
+    if (review) {
+      res.status(200).send({ review });
+    } else {
+      throw { status: 404, msg: "Id not found" };
+    }
+  } catch (err) {
+    next(err);
+  }
 };
