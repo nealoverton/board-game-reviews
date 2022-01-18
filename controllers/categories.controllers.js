@@ -1,4 +1,4 @@
-const { selectCategories } = require("../models/categories");
+const { selectCategories } = require("../models/categories.models");
 
 exports.getCategories = async (req, res, next) => {
   try {

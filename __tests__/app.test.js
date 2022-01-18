@@ -8,7 +8,7 @@ beforeEach(() => seed(testData));
 afterAll(() => db.end());
 
 describe("/invalid_url", () => {
-  test("Responds with status:404 and error message", async () => {
+  test("Status:404 and error message", async () => {
     const response = await request(app).get("/invalid_url");
     expect(response.status).toBe(404);
     expect(response.body.msg).toBe("Invalid URL");
@@ -17,7 +17,7 @@ describe("/invalid_url", () => {
 
 describe("/api/categories", () => {
   describe("GET", () => {
-    test("Reponds with status:200 and list of categories", async () => {
+    test("Status:200 and list of categories", async () => {
       const response = await request(app).get("/api/categories");
       expect(response.status).toBe(200);
       response.body.categories.forEach((category) => {
@@ -34,7 +34,7 @@ describe("/api/categories", () => {
 
 describe("/api/reviews/:review_id", () => {
   describe("GET", () => {
-    test("Reponds with status:200 and the requested review when passed valid id", async () => {
+    test("Status:200 and the requested review when passed valid id", async () => {
       const response = await request(app).get("/api/reviews/1");
       expect(response.status).toBe(200);
       expect(response.body.review).toEqual({
@@ -52,10 +52,26 @@ describe("/api/reviews/:review_id", () => {
       });
     });
 
-    test("Reponds with status:404 and error messsage when passed non-existent id", async () => {
+    test("Status:404 and error messsage when passed non-existent id", async () => {
       const response = await request(app).get("/api/reviews/1000");
       expect(response.status).toBe(404);
       expect(response.body.msg).toBe("Not found");
     });
+  });
+
+  describe("PATCH", () => {
+    test("Status:200 and the updated review when passed valid id", async () => {
+      const response = await request(app)
+        .get("/api/reviews/1")
+        .send({ inc_votes: 2 });
+      expect(response.status).toBe(200);
+      expect(response.body.review.votes).toBe(3);
+    });
+
+    // test("Reponds with status:404 and error messsage when passed non-existent id", async () => {
+    //   const response = await request(app).get("/api/reviews/1000");
+    //   expect(response.status).toBe(404);
+    //   expect(response.body.msg).toBe("Not found");
+    // });
   });
 });
