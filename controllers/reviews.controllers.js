@@ -1,4 +1,17 @@
-const { selectReviewById, updateReview } = require("../models/reviews.models");
+const {
+  selectReviewById,
+  updateReview,
+  selectReviews,
+} = require("../models/reviews.models");
+
+exports.getReviews = async (req, res, next) => {
+  try {
+    const reviews = await selectReviews();
+    res.status(200).send({ reviews });
+  } catch (err) {
+    next(err);
+  }
+};
 
 exports.getReviewById = async (req, res, next) => {
   try {

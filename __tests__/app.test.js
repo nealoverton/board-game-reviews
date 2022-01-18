@@ -46,7 +46,7 @@ describe("/api/reviews/:review_id", () => {
         review_img_url:
           "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png",
         category: "euro game",
-        created_at: expect.any(String),
+        created_at: new Date(1610964020514).toJSON(),
         votes: 1,
         comment_count: "0",
       });
@@ -66,6 +66,29 @@ describe("/api/reviews/:review_id", () => {
         .send({ inc_votes: 2 });
       expect(response.status).toBe(200);
       expect(response.body.review.votes).toBe(3);
+    });
+  });
+});
+
+describe("/api/reviews", () => {
+  describe("GET", () => {
+    test("Status:200 and list of reviews", async () => {
+      const response = await request(app).get("/api/reviews");
+      expect(response.status).toBe(200);
+      response.body.reviews.forEach((review) => {
+        expect(review).toEqual(
+          expect.objectContaining({
+            owner: expect.any(String),
+            title: expect.any(String),
+            review_id: expect.any(Number),
+            category: expect.any(String),
+            review_img_url: expect.any(String),
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+            comment_count: expect.any(String),
+          })
+        );
+      });
     });
   });
 });
