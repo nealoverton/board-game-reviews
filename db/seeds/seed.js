@@ -33,9 +33,11 @@ const seed = async (data) => {
           designer VARCHAR(255) NOT NULL,
           review_img_url VARCHAR(255) DEFAULT 'https://images.pexels.com/photos/163064/play-stone-network-networked-interactive-163064.jpeg',
           votes INT DEFAULT 0,
-          category VARCHAR(255) NOT NULL REFERENCES categories(slug),
-          owner VARCHAR(255) NOT NULL REFERENCES users(username),
-          created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+          category VARCHAR(255) NOT NULL,
+          owner VARCHAR(255) NOT NULL,
+          created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (category) REFERENCES categories(slug),
+          FOREIGN KEY (owner) REFERENCES users(username)
         );`
   );
 
@@ -43,10 +45,11 @@ const seed = async (data) => {
     `CREATE TABLE comments(
           comment_id SERIAL PRIMARY KEY,
           author VARCHAR(255) NOT NULL REFERENCES users(username),
-          review_id INT NOT NULL REFERENCES reviews(review_id),
+          review_id INT NOT NULL,
           votes INT DEFAULT 0,
           created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-          body TEXT NOT NULL
+          body TEXT NOT NULL,
+          FOREIGN KEY (review_id) REFERENCES reviews(review_id)
         );`
   );
 
