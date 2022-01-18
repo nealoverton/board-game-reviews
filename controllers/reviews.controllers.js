@@ -6,9 +6,9 @@ const {
 
 exports.getReviews = async (req, res, next) => {
   try {
-    const { sort_by } = req.query;
+    const { sort_by, order } = req.query;
 
-    const reviews = await selectReviews(sort_by);
+    const reviews = await selectReviews(sort_by, order);
     res.status(200).send({ reviews });
   } catch (err) {
     next(err);

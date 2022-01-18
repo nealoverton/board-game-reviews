@@ -118,5 +118,27 @@ describe("/api/reviews", () => {
       expect(response.status).toBe(200);
       expect(response.body.reviews).toBeSortedBy("created_at");
     });
+
+    test("Sorts in DESC when passed order query", async () => {
+      const response = await request(app).get("/api/reviews?order=DESC");
+      expect(response.status).toBe(200);
+      expect(response.body.reviews).toBeSortedBy("created_at", {
+        descending: true,
+      });
+    });
+
+    test("Order query is case insensitive", async () => {
+      const response = await request(app).get("/api/reviews?order=desc");
+      expect(response.status).toBe(200);
+      expect(response.body.reviews).toBeSortedBy("created_at", {
+        descending: true,
+      });
+    });
+
+    test("Defaults to ASC when passed invalid order query", async () => {
+      const response = await request(app).get("/api/reviews?order=squirrel");
+      expect(response.status).toBe(200);
+      expect(response.body.reviews).toBeSortedBy("created_at");
+    });
   });
 });
