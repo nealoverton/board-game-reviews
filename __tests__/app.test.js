@@ -94,27 +94,29 @@ describe("/api/reviews", () => {
     test("Sorts results by date as default", async () => {
       const response = await request(app).get("/api/reviews");
       expect(response.status).toBe(200);
-
-      const compareDateStrings = (a, b) => {
-        if (a.created_at < b.created_at) {
-          return -1;
-        }
-        if (a.created_at > b.created_at) {
-          return 1;
-        }
-        return 0;
-      };
-
-      const comparisonArray = [...response.body.reviews];
-      comparisonArray.sort(compareDateStrings);
-
-      expect(response.body.reviews).toEqual(comparisonArray);
+      expect(response.body.reviews).toBeSortedBy("created_at");
     });
 
     test("Sorts results by valid column passed as sort_by query", async () => {
       const response = await request(app).get("/api/reviews?sort_by=votes");
       expect(response.status).toBe(200);
       expect(response.body.reviews).toBeSortedBy("votes");
+
+      const response2 = await request(app).get("/api/reviews?sort_by=category");
+      expect(response2.status).toBe(200);
+      expect(response2.body.reviews).toBeSortedBy("category");
+
+      const response3 = await request(app).get(
+        "/api/reviews?sort_by=comment_count"
+      );
+      expect(response3.status).toBe(200);
+      expect(response3.body.reviews).toBeSortedBy("comment_count");
+    });
+
+    test("Defaults to date when passed invalid sort_by", async () => {
+      const response = await request(app).get("/api/reviews?sort_by=squirrels");
+      expect(response.status).toBe(200);
+      expect(response.body.reviews).toBeSortedBy("created_at");
     });
   });
 });

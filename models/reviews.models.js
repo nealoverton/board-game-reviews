@@ -13,14 +13,16 @@ exports.selectReviews = async (sort_by = "created_at") => {
   ];
 
   if (!sort_byWhitelist.includes(sort_by)) {
-    return Promise.reject({ status: 400, msg: "Bad Request" });
+    sort_by = "created_at";
   }
+
+  if (sort_by !== "comment_count") sort_by = "reviews." + sort_by;
 
   const sql = `SELECT owner, title, reviews.review_id, review_img_url, category, reviews.created_at, reviews.votes, COUNT(comment_id) AS comment_count
   FROM reviews
   LEFT JOIN comments ON reviews.review_id = comments.review_id
   GROUP BY reviews.review_id
-  ORDER BY reviews.${sort_by} ASC
+  ORDER BY ${sort_by} ASC
   ;`;
 
   const reviews = await db.query(sql);
