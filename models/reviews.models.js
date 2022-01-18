@@ -1,6 +1,10 @@
 const db = require("../db/connection.js");
 
-exports.selectReviews = async (sort_by = "created_at", order = "ASC") => {
+exports.selectReviews = async (
+  sort_by = "created_at",
+  order = "ASC",
+  category = "%"
+) => {
   const sort_byWhitelist = [
     "owner",
     "title",
@@ -16,16 +20,19 @@ exports.selectReviews = async (sort_by = "created_at", order = "ASC") => {
     sort_by = "created_at";
   }
 
-  const orderWhitelist = ["ASC", "DESC"];
-
-  if (!orderWhitelist.includes(order.toUpperCase())) {
+  if (order.toUpperCase() !== "DESC") {
     order = "ASC";
   }
+
+  const categorySections = category.split("'");
+  category = categorySections.join("''");
+
   if (sort_by !== "comment_count") sort_by = "reviews." + sort_by;
 
   const sql = `SELECT owner, title, reviews.review_id, review_img_url, category, reviews.created_at, reviews.votes, COUNT(comment_id) AS comment_count
   FROM reviews
   LEFT JOIN comments ON reviews.review_id = comments.review_id
+  WHERE category ILIKE '${category}'
   GROUP BY reviews.review_id
   ORDER BY ${sort_by} ${order}
   ;`;

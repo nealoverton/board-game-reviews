@@ -1,3 +1,4 @@
+const { selectCategories } = require("../models/categories.models");
 const {
   selectReviewById,
   updateReview,
@@ -6,9 +7,19 @@ const {
 
 exports.getReviews = async (req, res, next) => {
   try {
-    const { sort_by, order } = req.query;
+    const { sort_by, order, category } = req.query;
 
-    const reviews = await selectReviews(sort_by, order);
+    if (category) {
+      const existingCategories = await selectCategories();
+      const validCategoryNames = existingCategories.map((obj) => {
+        return obj.slug;
+      });
+      if (!validCategoryNames.includes(category)) {
+        throw { status: 400, msg: "Invalid category" };
+      }
+    }
+
+    const reviews = await selectReviews(sort_by, order, category);
     res.status(200).send({ reviews });
   } catch (err) {
     next(err);

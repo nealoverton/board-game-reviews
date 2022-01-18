@@ -97,7 +97,7 @@ describe("/api/reviews", () => {
       expect(response.body.reviews).toBeSortedBy("created_at");
     });
 
-    test("Sorts results by valid column passed as sort_by query", async () => {
+    test("?sort_by= sorts results by valid column name", async () => {
       const response = await request(app).get("/api/reviews?sort_by=votes");
       expect(response.status).toBe(200);
       expect(response.body.reviews).toBeSortedBy("votes");
@@ -113,13 +113,13 @@ describe("/api/reviews", () => {
       expect(response3.body.reviews).toBeSortedBy("comment_count");
     });
 
-    test("Defaults to date when passed invalid sort_by", async () => {
+    test("?sort_by= defaults to date when passed invalid sort_by", async () => {
       const response = await request(app).get("/api/reviews?sort_by=squirrels");
       expect(response.status).toBe(200);
       expect(response.body.reviews).toBeSortedBy("created_at");
     });
 
-    test("Sorts in DESC when passed order query", async () => {
+    test("?order= sorts in DESC when specified", async () => {
       const response = await request(app).get("/api/reviews?order=DESC");
       expect(response.status).toBe(200);
       expect(response.body.reviews).toBeSortedBy("created_at", {
@@ -127,7 +127,7 @@ describe("/api/reviews", () => {
       });
     });
 
-    test("Order query is case insensitive", async () => {
+    test("?order= is case insensitive", async () => {
       const response = await request(app).get("/api/reviews?order=desc");
       expect(response.status).toBe(200);
       expect(response.body.reviews).toBeSortedBy("created_at", {
@@ -135,10 +135,42 @@ describe("/api/reviews", () => {
       });
     });
 
-    test("Defaults to ASC when passed invalid order query", async () => {
+    test("?order= defaults to ASC when passed invalid order query", async () => {
       const response = await request(app).get("/api/reviews?order=squirrel");
       expect(response.status).toBe(200);
       expect(response.body.reviews).toBeSortedBy("created_at");
+    });
+
+    test("?category= filters results by single-word category", async () => {
+      const response = await request(app).get(
+        "/api/reviews?category=dexterity"
+      );
+      expect(response.status).toBe(200);
+      expect(response.body.reviews).toHaveLength(1);
+    });
+
+    test("?category= handles multiple-word input", async () => {
+      const response = await request(app).get(
+        "/api/reviews?category=euro%20game"
+      );
+      expect(response.status).toBe(200);
+      expect(response.body.reviews).toHaveLength(1);
+    });
+
+    test("?category= returns empty array when valid catgory has no entries", async () => {
+      const response = await request(app).get(
+        "/api/reviews?category=children's%20games"
+      );
+      expect(response.status).toBe(200);
+      expect(response.body.reviews).toHaveLength(0);
+    });
+
+    test("?category= returns 400 error when passed invalid category", async () => {
+      const response = await request(app).get(
+        "/api/reviews?category=deckbuilding"
+      );
+      expect(response.status).toBe(400);
+      expect(response.body.msg).toBe("Invalid category");
     });
   });
 });
