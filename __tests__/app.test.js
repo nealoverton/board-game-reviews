@@ -3,6 +3,7 @@ const request = require("supertest");
 const db = require("../db/connection.js");
 const testData = require("../db/data/test-data/index.js");
 const app = require("../app.js");
+const fs = require("fs/promises");
 
 beforeEach(() => seed(testData));
 afterAll(() => db.end());
@@ -339,6 +340,24 @@ describe("/api/comments/:comment_id", () => {
   describe("method not allowed", () => {
     test("Status:405", async () => {
       const response = await request(app).get("/api/comments/1");
+      expect(response.status).toBe(405);
+    });
+  });
+});
+
+describe("/api", () => {
+  describe("GET", () => {
+    test("Status:200 and list of available endpoints, methods, and queries", async () => {
+      const response = await request(app).get("/api");
+      const endpoints = await fs.readFile("./endpoints.json", "utf-8");
+      expect(response.status).toBe(200);
+      expect(response.body.endpoints).toEqual(endpoints);
+    });
+  });
+
+  describe("method not allowed", () => {
+    test("Status:405", async () => {
+      const response = await request(app).delete("/api");
       expect(response.status).toBe(405);
     });
   });

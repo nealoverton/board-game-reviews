@@ -1,12 +1,7 @@
 const express = require("express");
-const {
-  handleInvalidUrl,
-  handleInvalidMethod,
-  handlePsqlErrors,
-  handleCustomErrors,
-  handleServerErrors,
-} = require("./errors/errors.js");
+const { getEndpoints } = require("./controllers/api.controllers");
 const { getCategories } = require("./controllers/categories.controllers");
+const { deleteComment } = require("./controllers/comments.controllers");
 const {
   getReviews,
   getReviewById,
@@ -14,10 +9,18 @@ const {
   getCommentsByReviewId,
   postComment,
 } = require("./controllers/reviews.controllers");
-const { deleteComment } = require("./controllers/comments.controllers");
+const {
+  handleInvalidUrl,
+  handleInvalidMethod,
+  handlePsqlErrors,
+  handleCustomErrors,
+  handleServerErrors,
+} = require("./errors/errors.js");
 
 const app = express();
 app.use(express.json());
+
+app.get("/api", getEndpoints);
 
 app.get("/api/categories", getCategories);
 
@@ -31,6 +34,7 @@ app.post("/api/reviews/:review_id/comments", postComment);
 
 app.delete("/api/comments/:comment_id", deleteComment);
 
+app.all("/api", handleInvalidMethod);
 app.all("/api/categories", handleInvalidMethod);
 app.all("/api/reviews", handleInvalidMethod);
 app.all("/api/reviews/:review_id", handleInvalidMethod);
