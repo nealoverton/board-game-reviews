@@ -20,7 +20,7 @@ const {
 const app = express();
 app.use(express.json());
 
-app.get("/api", getEndpoints);
+app.get("/", getEndpoints);
 
 app.get("/api/categories", getCategories);
 
