@@ -1,6 +1,6 @@
 const express = require("express");
 const {
-  handle404s,
+  handleInvalidUrl,
   handlePsqlErrors,
   handleCustomErrors,
   handleServerErrors,
@@ -10,6 +10,7 @@ const {
   getReviews,
   getReviewById,
   patchReview,
+  getCommentsByReviewId,
 } = require("./controllers/reviews.controllers");
 
 const app = express();
@@ -22,7 +23,9 @@ app.get("/api/reviews", getReviews);
 app.get("/api/reviews/:review_id", getReviewById);
 app.patch("/api/reviews/:review_id", patchReview);
 
-app.all("*", handle404s);
+app.get("/api/reviews/:review_id/comments", getCommentsByReviewId);
+
+app.all("*", handleInvalidUrl);
 
 app.use(handlePsqlErrors);
 app.use(handleCustomErrors);

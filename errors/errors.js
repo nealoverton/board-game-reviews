@@ -1,4 +1,4 @@
-exports.handle404s = (req, res) => {
+exports.handleInvalidUrl = (req, res) => {
   res.status(404).send({ msg: "Invalid URL" });
 };
 

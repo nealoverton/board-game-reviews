@@ -52,20 +52,52 @@ describe("/api/reviews/:review_id", () => {
       });
     });
 
-    test("Status:404 and error messsage when passed non-existent id", async () => {
+    test("Status:404 and error messsage when valid but non-existent id", async () => {
       const response = await request(app).get("/api/reviews/1000");
       expect(response.status).toBe(404);
       expect(response.body.msg).toBe("Id not found");
     });
+
+    test("Status:400 and error messsage when invalid id", async () => {
+      const response = await request(app).get("/api/reviews/squirrel");
+      expect(response.status).toBe(400);
+      expect(response.body.msg).toBe("Bad request");
+
+      const response2 = await request(app).get("/api/reviews/7hjdg7");
+      expect(response2.status).toBe(400);
+      expect(response2.body.msg).toBe("Bad request");
+    });
   });
 
   describe("PATCH", () => {
-    test("Status:200 and the updated review when passed valid id", async () => {
+    test("Status:200 and the updated review when passed valid id and inc_votes", async () => {
       const response = await request(app)
         .patch("/api/reviews/1")
         .send({ inc_votes: 2 });
       expect(response.status).toBe(200);
       expect(response.body.review.votes).toBe(3);
+    });
+
+    test("Status:404 non-existent but valid id", async () => {
+      const response = await request(app)
+        .patch("/api/reviews/1000")
+        .send({ inc_votes: 2 });
+      expect(response.status).toBe(404);
+      expect(response.body.msg).toBe("Id not found");
+    });
+
+    test("Status:400 when passed invalid id", async () => {
+      const response = await request(app)
+        .patch("/api/reviews/squirrel")
+        .send({ inc_votes: 2 });
+      expect(response.status).toBe(400);
+      expect(response.body.msg).toBe("Bad request");
+    });
+
+    test("Status:400 when body contains no inc_votes", async () => {
+      const response = await request(app).patch("/api/reviews/1").send({});
+      expect(response.status).toBe(400);
+      expect(response.body.msg).toBe("Bad request: no inc_votes");
     });
   });
 });
@@ -171,6 +203,45 @@ describe("/api/reviews", () => {
       );
       expect(response.status).toBe(400);
       expect(response.body.msg).toBe("Invalid category");
+    });
+  });
+});
+
+describe("/api/reviews/:review_id/comments", () => {
+  describe("GET", () => {
+    test("Status:200 and array of comments when passed valid id", async () => {
+      const response = await request(app).get("/api/reviews/2/comments");
+      expect(response.status).toBe(200);
+      expect(response.body.comments).toHaveLength(3);
+      response.body.comments.forEach((comment) => {
+        expect(comment).toEqual(
+          expect.objectContaining({
+            comment_id: expect.any(Number),
+            votes: expect.any(Number),
+            created_at: expect.any(String),
+            author: expect.any(String),
+            body: expect.any(String),
+          })
+        );
+      });
+    });
+
+    test("Status:200 and empty array when valid review_id has no comments", async () => {
+      const response = await request(app).get("/api/reviews/1/comments");
+      expect(response.status).toBe(200);
+      expect(response.body.comments).toHaveLength(0);
+    });
+
+    test("Status:404 and when passed valid but non-existent review_id", async () => {
+      const response = await request(app).get("/api/reviews/1000/comments");
+      expect(response.status).toBe(404);
+      expect(response.body.msg).toBe("Id not found");
+    });
+
+    test("Status:400 and when passed invalid review_id", async () => {
+      const response = await request(app).get("/api/reviews/squirrel/comments");
+      expect(response.status).toBe(400);
+      expect(response.body.msg).toBe("Bad request");
     });
   });
 });
