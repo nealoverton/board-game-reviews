@@ -245,3 +245,66 @@ describe("/api/reviews/:review_id/comments", () => {
     });
   });
 });
+
+describe("/api/reviews/:review_id/comments", () => {
+  describe("POST", () => {
+    test("Status:201 and returns comment when passed valid review_id and comment values", async () => {
+      const response = await request(app).post("/api/reviews/1/comments").send({
+        username: "dav3rid",
+        body: "I agree",
+      });
+
+      expect(response.status).toBe(201);
+      expect(response.body.comment).toEqual(
+        expect.objectContaining({
+          comment_id: expect.any(Number),
+          votes: 0,
+          created_at: expect.any(String),
+          author: "dav3rid",
+          body: "I agree",
+          review_id: 1,
+        })
+      );
+    });
+
+    test("Status:400 when passed invalid or non-existent review_id", async () => {
+      const response = await request(app)
+        .post("/api/reviews/1000/comments")
+        .send({
+          username: "dav3rid",
+          body: "I agree",
+        });
+      expect(response.status).toBe(400);
+    });
+
+    test("Status:400 when passed body without necessary keys", async () => {
+      const response = await request(app).post("/api/reviews/1/comments").send({
+        body: "I agree",
+      });
+      expect(response.status).toBe(400);
+      expect(response.body.msg).toBe("Bad request: username or body missing");
+    });
+  });
+});
+
+describe("/api/comments/:comment_id", () => {
+  describe("DELETE", () => {
+    test("Status:204 when passed valid id", async () => {
+      const response = await request(app).delete("/api/comments/1");
+      expect(response.status).toBe(204);
+    });
+
+    test("Status:404 when passed valid but non-existent id", async () => {
+      const response = await request(app).delete("/api/comments/1");
+      expect(response.status).toBe(204);
+
+      const response2 = await request(app).delete("/api/comments/1");
+      expect(response2.status).toBe(404);
+    });
+
+    test("Status:400 when passed invalid id", async () => {
+      const response = await request(app).delete("/api/comments/squirrel");
+      expect(response.status).toBe(400);
+    });
+  });
+});

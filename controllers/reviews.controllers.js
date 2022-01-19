@@ -4,6 +4,7 @@ const {
   updateReview,
   selectReviews,
   selectCommentsByReviewId,
+  insertComment,
 } = require("../models/reviews.models");
 
 exports.getReviews = async (req, res, next) => {
@@ -76,6 +77,22 @@ exports.getCommentsByReviewId = async (req, res, next) => {
 
     const comments = await selectCommentsByReviewId(review_id);
     res.status(200).send({ comments });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.postComment = async (req, res, next) => {
+  try {
+    const { review_id } = req.params;
+    const { username, body } = req.body;
+
+    if (!username || !body) {
+      throw { status: 400, msg: "Bad request: username or body missing" };
+    }
+
+    const comment = await insertComment(review_id, username, body);
+    res.status(201).send({ comment });
   } catch (err) {
     next(err);
   }
