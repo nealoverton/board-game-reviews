@@ -2,6 +2,7 @@ const express = require("express");
 const { getEndpoints } = require("./controllers/api.controllers");
 const { getCategories } = require("./controllers/categories.controllers");
 const { deleteComment } = require("./controllers/comments.controllers");
+const { getUsers } = require("./controllers/users.controllers");
 const {
   getReviews,
   getReviewById,
@@ -25,14 +26,14 @@ app.get("/api", getEndpoints);
 app.get("/api/categories", getCategories);
 
 app.get("/api/reviews", getReviews);
-
 app.get("/api/reviews/:review_id", getReviewById);
 app.patch("/api/reviews/:review_id", patchReview);
-
 app.get("/api/reviews/:review_id/comments", getCommentsByReviewId);
 app.post("/api/reviews/:review_id/comments", postComment);
 
 app.delete("/api/comments/:comment_id", deleteComment);
+
+app.get("/api/users", getUsers);
 
 app.all("/api", handleInvalidMethod);
 app.all("/api/categories", handleInvalidMethod);
@@ -40,6 +41,7 @@ app.all("/api/reviews", handleInvalidMethod);
 app.all("/api/reviews/:review_id", handleInvalidMethod);
 app.all("/api/reviews/:review_id/comments", handleInvalidMethod);
 app.all("/api/comments/:comment_id", handleInvalidMethod);
+app.all("/api/users", handleInvalidMethod);
 
 app.all("*", handleInvalidUrl);
 

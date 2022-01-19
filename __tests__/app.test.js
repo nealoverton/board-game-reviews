@@ -350,14 +350,38 @@ describe("/api", () => {
     test("Status:200 and list of available endpoints, methods, and queries", async () => {
       const response = await request(app).get("/api");
       const endpoints = await fs.readFile("./endpoints.json", "utf-8");
+      const parsedEndpoints = JSON.parse(endpoints);
       expect(response.status).toBe(200);
-      expect(response.body.endpoints).toEqual(endpoints);
+      expect(response.body.endpoints).toEqual(parsedEndpoints);
     });
   });
 
   describe("method not allowed", () => {
     test("Status:405", async () => {
       const response = await request(app).delete("/api");
+      expect(response.status).toBe(405);
+    });
+  });
+});
+
+describe("/api/users", () => {
+  describe("GET", () => {
+    test("Status:200 and array of usernames", async () => {
+      const response = await request(app).get("/api/users");
+      expect(response.status).toBe(200);
+      response.body.users.forEach((user) => {
+        expect(user).toEqual(
+          expect.objectContaining({
+            username: expect.any(String),
+          })
+        );
+      });
+    });
+  });
+
+  describe("method not allowed", () => {
+    test("Status:405", async () => {
+      const response = await request(app).delete("/api/users");
       expect(response.status).toBe(405);
     });
   });
