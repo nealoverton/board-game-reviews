@@ -30,5 +30,66 @@
         }
       ]
     }
+  },
+  "GET /api/reviews:review_id": {
+    "description": "serves the full review matching the review_id parameter",
+    "exampleResponse": {
+      "owner": "mallionaire",
+      "title": "Agricola",
+      "review_id": 1,
+      "review_body": "Farmyard fun!",
+      "designer": "Uwe Rosenberg",
+      "review_img_url": "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png",
+      "category": "euro game",
+      "created_at": 1610964020514,
+      "votes": 1,
+      "comment_count": "0"
+    }
+  },
+  "PATCH /api/reviews:review_id": {
+    "description": "serves an updated review with votes increased by the value provided in an 'inc_votes' property on the request body",
+    "exampleRequestBody": {
+      "inc_votes": 2
+    },
+    "exampleResponse": {
+      "owner": "mallionaire",
+      "title": "Agricola",
+      "review_id": 1,
+      "review_body": "Farmyard fun!",
+      "designer": "Uwe Rosenberg",
+      "review_img_url": "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png",
+      "category": "euro game",
+      "created_at": 1610964020514,
+      "votes": 3
+    }
+  },
+  "GET /api/reviews:review_id/comments": {
+    "description": "serves an array of all the comments corresponding to the review_id provided",
+    "exampleResponse": {
+      "comment_id": 1,
+      "review_body": "I loved this game too!",
+      "votes": 16,
+      "author": "bainesface",
+      "review_id": 2,
+      "created_at": 1511354613389
+    }
+  },
+  "POST /api/reviews:review_id/comments": {
+    "description": "serves a new comment containing the username and body provided in the request body",
+    "exampleRequestBody": {
+      "username": "littleblackcat",
+      "body": "I thought it was meh"
+    },
+    "exampleResponse": {
+      "comment_id": 15,
+      "review_body": "I thought it was meh",
+      "votes": 0,
+      "author": "littleblackcat",
+      "review_id": 2,
+      "created_at": 1511354613390
+    }
+  },
+  "DELETE /api/comments/:comment_id": {
+    "description": "deletes a comment matching the comment_id parameter"
   }
 }
