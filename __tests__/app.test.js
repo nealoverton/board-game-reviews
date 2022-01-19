@@ -107,6 +107,11 @@ describe("/api/reviews/:review_id", () => {
       expect(response.status).toBe(400);
       expect(response.body.msg).toBe("Bad request: no inc_votes");
     });
+
+    test("Status:400 when inc_votes is not a number", async () => {
+      const response = await request(app).patch("/api/reviews/1").send({});
+      expect(response.status).toBe(400);
+    });
   });
 
   describe("method not allowed", () => {
@@ -337,6 +342,50 @@ describe("/api/comments/:comment_id", () => {
     });
   });
 
+  describe("PATCH", () => {
+    test("Status:200 and the updated comment when passed valid inc_votes", async () => {
+      const response = await request(app)
+        .patch("/api/comments/1")
+        .send({ inc_votes: 1 });
+      expect(response.status).toBe(200);
+      expect(response.body.comment).toEqual({
+        comment_id: 1,
+        body: "I loved this game too!",
+        votes: 17,
+        author: "bainesface",
+        review_id: 2,
+        created_at: new Date(1511354613389).toJSON(),
+      });
+    });
+
+    test("Status:404 non-existent but valid id", async () => {
+      const response = await request(app)
+        .patch("/api/comments/1000")
+        .send({ inc_votes: 2 });
+      expect(response.status).toBe(404);
+      expect(response.body.msg).toBe("Id not found");
+    });
+
+    test("Status:400 when passed invalid id", async () => {
+      const response = await request(app)
+        .patch("/api/comments/puffin")
+        .send({ inc_votes: 2 });
+      expect(response.status).toBe(400);
+      expect(response.body.msg).toBe("Bad request");
+    });
+
+    test("Status:400 when body contains no inc_votes", async () => {
+      const response = await request(app).patch("/api/comments/1").send({});
+      expect(response.status).toBe(400);
+      expect(response.body.msg).toBe("Bad request: no inc_votes");
+    });
+
+    test("Status:400 when inc_votes is not a number", async () => {
+      const response = await request(app).patch("/api/comments/1").send({});
+      expect(response.status).toBe(400);
+    });
+  });
+
   describe("method not allowed", () => {
     test("Status:405", async () => {
       const response = await request(app).get("/api/comments/1");
@@ -382,6 +431,39 @@ describe("/api/users", () => {
   describe("method not allowed", () => {
     test("Status:405", async () => {
       const response = await request(app).delete("/api/users");
+      expect(response.status).toBe(405);
+    });
+  });
+});
+
+describe("/api/users/:username", () => {
+  describe("GET", () => {
+    test("Status:200 and the requested user when passed valid username", async () => {
+      const response = await request(app).get("/api/users/mallionaire");
+      expect(response.status).toBe(200);
+      expect(response.body.user).toEqual({
+        username: "mallionaire",
+        name: "haz",
+        avatar_url:
+          "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
+      });
+    });
+
+    test("Status:404 when passed valid username", async () => {
+      const response = await request(app).get("/api/users/puffin");
+      expect(response.status).toBe(404);
+
+      const response2 = await request(app).get("/api/users/67676767");
+      expect(response2.status).toBe(404);
+
+      const response3 = await request(app).get('/api/users/{msg:"hello"}');
+      expect(response3.status).toBe(404);
+    });
+  });
+
+  describe("method not allowed", () => {
+    test("Status:405", async () => {
+      const response = await request(app).delete("/api/users/mallionaire");
       expect(response.status).toBe(405);
     });
   });
