@@ -1,6 +1,7 @@
 const express = require("express");
 const {
   handleInvalidUrl,
+  handleInvalidMethod,
   handlePsqlErrors,
   handleCustomErrors,
   handleServerErrors,
@@ -29,6 +30,12 @@ app.get("/api/reviews/:review_id/comments", getCommentsByReviewId);
 app.post("/api/reviews/:review_id/comments", postComment);
 
 app.delete("/api/comments/:comment_id", deleteComment);
+
+app.all("/api/categories", handleInvalidMethod);
+app.all("/api/reviews", handleInvalidMethod);
+app.all("/api/reviews/:review_id", handleInvalidMethod);
+app.all("/api/reviews/:review_id/comments", handleInvalidMethod);
+app.all("/api/comments/:comment_id", handleInvalidMethod);
 
 app.all("*", handleInvalidUrl);
 

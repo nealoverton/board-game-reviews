@@ -30,6 +30,13 @@ describe("/api/categories", () => {
       });
     });
   });
+
+  describe("method not allowed", () => {
+    test("Status:405", async () => {
+      const response = await request(app).delete("/api/categories");
+      expect(response.status).toBe(405);
+    });
+  });
 });
 
 describe("/api/reviews/:review_id", () => {
@@ -98,6 +105,13 @@ describe("/api/reviews/:review_id", () => {
       const response = await request(app).patch("/api/reviews/1").send({});
       expect(response.status).toBe(400);
       expect(response.body.msg).toBe("Bad request: no inc_votes");
+    });
+  });
+
+  describe("method not allowed", () => {
+    test("Status:405", async () => {
+      const response = await request(app).delete("/api/reviews/1");
+      expect(response.status).toBe(405);
     });
   });
 });
@@ -205,6 +219,13 @@ describe("/api/reviews", () => {
       expect(response.body.msg).toBe("Invalid category");
     });
   });
+
+  describe("method not allowed", () => {
+    test("Status:405", async () => {
+      const response = await request(app).delete("/api/reviews");
+      expect(response.status).toBe(405);
+    });
+  });
 });
 
 describe("/api/reviews/:review_id/comments", () => {
@@ -242,6 +263,13 @@ describe("/api/reviews/:review_id/comments", () => {
       const response = await request(app).get("/api/reviews/squirrel/comments");
       expect(response.status).toBe(400);
       expect(response.body.msg).toBe("Bad request");
+    });
+  });
+
+  describe("method not allowed", () => {
+    test("Status:405", async () => {
+      const response = await request(app).delete("/api/reviews/1/comments");
+      expect(response.status).toBe(405);
     });
   });
 });
@@ -305,6 +333,13 @@ describe("/api/comments/:comment_id", () => {
     test("Status:400 when passed invalid id", async () => {
       const response = await request(app).delete("/api/comments/squirrel");
       expect(response.status).toBe(400);
+    });
+  });
+
+  describe("method not allowed", () => {
+    test("Status:405", async () => {
+      const response = await request(app).get("/api/comments/1");
+      expect(response.status).toBe(405);
     });
   });
 });
