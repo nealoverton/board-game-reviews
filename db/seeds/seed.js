@@ -36,8 +36,8 @@ const seed = async (data) => {
           category VARCHAR(255) NOT NULL,
           owner VARCHAR(255) NOT NULL,
           created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-          FOREIGN KEY (category) REFERENCES categories(slug),
-          FOREIGN KEY (owner) REFERENCES users(username)
+          FOREIGN KEY (category) REFERENCES categories(slug) ON DELETE CASCADE,
+          FOREIGN KEY (owner) REFERENCES users(username) ON DELETE CASCADE
         );`
   );
 
@@ -49,7 +49,7 @@ const seed = async (data) => {
           votes INT DEFAULT 0,
           created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
           body TEXT NOT NULL,
-          FOREIGN KEY (review_id) REFERENCES reviews(review_id)
+          FOREIGN KEY (review_id) REFERENCES reviews(review_id) ON DELETE CASCADE
         );`
   );
 

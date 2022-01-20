@@ -8,6 +8,7 @@ const {
   countTotalReviews,
   countTotalComments,
   insertReview,
+  removeReview,
 } = require("../models/reviews.models");
 
 exports.getReviews = async (req, res, next) => {
@@ -78,6 +79,20 @@ exports.patchReview = async (req, res, next) => {
 
     if (review) {
       res.status(200).send({ review });
+    } else {
+      throw { status: 404, msg: "Id not found" };
+    }
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.deleteReview = async (req, res, next) => {
+  try {
+    const { review_id } = req.params;
+    const review = await removeReview(review_id);
+    if (review) {
+      res.sendStatus(204);
     } else {
       throw { status: 404, msg: "Id not found" };
     }

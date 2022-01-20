@@ -19,6 +19,7 @@ const {
   patchReview,
   getCommentsByReviewId,
   postComment,
+  deleteReview,
 } = require("./controllers/reviews.controllers");
 const {
   handleInvalidUrl,
@@ -40,6 +41,7 @@ app.get("/api/reviews", getReviews);
 app.post("/api/reviews", postReview);
 app.get("/api/reviews/:review_id", getReviewById);
 app.patch("/api/reviews/:review_id", patchReview);
+app.delete("/api/reviews/:review_id", deleteReview);
 app.get("/api/reviews/:review_id/comments", getCommentsByReviewId);
 app.post("/api/reviews/:review_id/comments", postComment);
 

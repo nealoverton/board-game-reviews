@@ -4,6 +4,7 @@ const db = require("../db/connection.js");
 const testData = require("../db/data/test-data/index.js");
 const app = require("../app.js");
 const fs = require("fs/promises");
+const { response } = require("express");
 
 beforeEach(() => seed(testData));
 afterAll(() => db.end());
@@ -210,9 +211,29 @@ describe("/api/reviews/:review_id", () => {
     });
   });
 
+  describe("DELETE", () => {
+    test("Status:204 when passed valid id", async () => {
+      const response = await request(app).delete("/api/reviews/1");
+      expect(response.status).toBe(204);
+    });
+
+    test("Status:404 when passed valid but non-existent id", async () => {
+      const response = await request(app).delete("/api/reviews/1");
+      expect(response.status).toBe(204);
+
+      const response2 = await request(app).delete("/api/reviews/1");
+      expect(response2.status).toBe(404);
+    });
+
+    test("Status:400 when passed invalid id", async () => {
+      const response = await request(app).delete("/api/reviews/squirrel");
+      expect(response.status).toBe(400);
+    });
+  });
+
   describe("method not allowed", () => {
     test("Status:405", async () => {
-      const response = await request(app).delete("/api/reviews/1");
+      const response = await request(app).post("/api/reviews/1");
       expect(response.status).toBe(405);
     });
   });

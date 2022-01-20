@@ -115,6 +115,18 @@ exports.updateReview = async (inc_votes, review_id) => {
   return review.rows[0];
 };
 
+exports.removeReview = async (review_id) => {
+  const review = await db.query(
+    `DELETE FROM reviews
+    WHERE review_id = $1
+    RETURNING *
+    ;`,
+    [review_id]
+  );
+
+  return review.rows[0];
+};
+
 exports.selectCommentsByReviewId = async (review_id, limit = 10, p = 1) => {
   const offset = (p - 1) * limit;
 
