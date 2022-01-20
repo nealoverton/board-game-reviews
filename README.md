@@ -46,3 +46,7 @@ To run the provided tests:
 To open the dev environment
 
         $ npm start
+
+## Using the Application
+
+A complete list of endpoints and accepted queries can be found at GET /api
