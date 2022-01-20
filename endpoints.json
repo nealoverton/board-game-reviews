@@ -14,6 +14,20 @@
       ]
     }
   },
+  "POST /api/categories": {
+    "description": "adds a category to the database, returning the new-created category. Must provide a unique slug and a description in the request body",
+    "queries": [],
+    "exampleRequestBody": {
+      "slug": "Deck-building",
+      "description": "Games where players draw random cards to build a winning deck"
+    },
+    "exampleResponse": {
+      "category": {
+        "slug": "Deck-building",
+        "description": "Games where players draw random cards to build a winning deck"
+      }
+    }
+  },
   "GET /api/reviews": {
     "description": "serves an array of all reviews",
     "queries": ["category", "sort_by", "order"],
@@ -25,8 +39,34 @@
           "owner": "happyamy2016",
           "review_img_url": "https://images.pexels.com/photos/5350049/pexels-photo-5350049.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260",
           "category": "hidden-roles",
-          "created_at": 1610964101251,
+          "created_at": "2021-01-18T10:01:41.251Z",
           "votes": 5
+        }
+      ]
+    }
+  },
+  "POST /api/reviews": {
+    "description": "adds a review to the database and returns the newly created review. Request body must contain an existing owner (username), title, review_body, designer, and an existing category",
+    "queries": [],
+    "exampleRequestBody": {
+      "owner": "mallionaire",
+      "title": "Mine a Million",
+      "review_body": "A management sim ahead of its time",
+      "designer": "Peter and Philip Bergner",
+      "category": "euro game"
+    },
+    "exampleResponse": {
+      "reviews": [
+        {
+          "owner": "mallionaire",
+          "title": "Mine a Million",
+          "review_body": "A management sim ahead of its time",
+          "designer": "Peter and Philip Bergner",
+          "category": "euro game",
+          "review_id": 19,
+          "votes": 0,
+          "created_at": "2021-01-07T09:06:08.077Z",
+          "comment_count": 0
         }
       ]
     }
@@ -34,16 +74,18 @@
   "GET /api/reviews:review_id": {
     "description": "serves the full review matching the review_id parameter",
     "exampleResponse": {
-      "owner": "mallionaire",
-      "title": "Agricola",
-      "review_id": 1,
-      "review_body": "Farmyard fun!",
-      "designer": "Uwe Rosenberg",
-      "review_img_url": "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png",
-      "category": "euro game",
-      "created_at": 1610964020514,
-      "votes": 1,
-      "comment_count": "0"
+      "review": {
+        "owner": "mallionaire",
+        "title": "Agricola",
+        "review_id": 1,
+        "review_body": "Farmyard fun!",
+        "designer": "Uwe Rosenberg",
+        "review_img_url": "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png",
+        "category": "euro game",
+        "created_at": "2021-01-07T09:06:08.077Z",
+        "votes": 1,
+        "comment_count": "0"
+      }
     }
   },
   "PATCH /api/reviews:review_id": {
@@ -52,26 +94,35 @@
       "inc_votes": 2
     },
     "exampleResponse": {
-      "owner": "mallionaire",
-      "title": "Agricola",
-      "review_id": 1,
-      "review_body": "Farmyard fun!",
-      "designer": "Uwe Rosenberg",
-      "review_img_url": "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png",
-      "category": "euro game",
-      "created_at": 1610964020514,
-      "votes": 3
+      "review": {
+        "owner": "mallionaire",
+        "title": "Agricola",
+        "review_id": 1,
+        "review_body": "Farmyard fun!",
+        "designer": "Uwe Rosenberg",
+        "review_img_url": "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png",
+        "category": "euro game",
+        "created_at": "2021-01-07T09:06:08.077Z",
+        "votes": 3
+      }
     }
+  },
+  "DELETE /api/reviews:review_id": {
+    "description": "deletes an existing review from the database if matching id is found. Returns no data."
   },
   "GET /api/reviews:review_id/comments": {
     "description": "serves an array of all the comments corresponding to the review_id provided",
     "exampleResponse": {
-      "comment_id": 1,
-      "review_body": "I loved this game too!",
-      "votes": 16,
-      "author": "bainesface",
-      "review_id": 2,
-      "created_at": 1511354613389
+      "comments": [
+        {
+          "comment_id": 1,
+          "review_body": "I loved this game too!",
+          "votes": 16,
+          "author": "bainesface",
+          "review_id": 2,
+          "created_at": "2021-01-07T09:06:08.077Z"
+        }
+      ]
     }
   },
   "POST /api/reviews:review_id/comments": {
@@ -86,10 +137,26 @@
       "votes": 0,
       "author": "littleblackcat",
       "review_id": 2,
-      "created_at": 1511354613390
+      "created_at": "2021-01-07T09:06:08.077Z"
     }
   },
   "DELETE /api/comments/:comment_id": {
-    "description": "deletes a comment matching the comment_id parameter"
+    "description": "deletes a comment matching the comment_id parameter. Returns no data"
+  },
+  "PATCH /api/comments:comment_id": {
+    "description": "serves an updated comment with votes increased by the value provided in an 'inc_votes' property on the request body",
+    "exampleRequestBody": {
+      "inc_votes": 2
+    },
+    "exampleResponse": {
+      "comment": {
+        "comment_id": 1,
+        "review_body": "I loved this game too!",
+        "votes": 16,
+        "author": "bainesface",
+        "review_id": 4,
+        "created_at": "2021-01-07T09:06:08.077Z"
+      }
+    }
   }
 }
