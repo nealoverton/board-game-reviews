@@ -25,10 +25,7 @@ exports.getReviews = async (req, res, next) => {
 
     const reviews = await selectReviews(sort_by, order, category, limit, p);
     const total_count = await countTotalReviews(category);
-    const response = {
-      reviews: reviews,
-      total_count: total_count,
-    };
+    const response = { reviews, total_count };
 
     res.status(200).send(response);
   } catch (err) {
@@ -86,10 +83,7 @@ exports.getCommentsByReviewId = async (req, res, next) => {
 
     const comments = await selectCommentsByReviewId(review_id, limit, p);
     const total_count = await countTotalComments(review_id);
-    const response = {
-      comments: comments,
-      total_count: total_count,
-    };
+    const response = { comments, total_count };
 
     res.status(200).send(response);
   } catch (err) {

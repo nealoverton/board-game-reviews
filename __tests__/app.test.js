@@ -30,6 +30,46 @@ describe("/api/categories", () => {
         );
       });
     });
+
+    test("Limits list of catgories to number passed as limit query", async () => {
+      const response = await request(app).get("/api/categories?limit=2");
+      expect(response.status).toBe(200);
+      expect(response.body.categories).toHaveLength(2);
+    });
+
+    test("Status:400 when limit is not a number", async () => {
+      const response = await request(app).get("/api/categories?limit=hello");
+      expect(response.status).toBe(400);
+
+      const response2 = await request(app).get("/api/categories?limit=    ");
+      expect(response2.status).toBe(400);
+    });
+
+    test("Responds with another list of (limit) categories when page number is provided", async () => {
+      const page1 = await request(app).get("/api/categories?limit=2");
+      const page2 = await request(app).get("/api/categories?limit=2&&p=2");
+      for (page2Category of page2.body.categories) {
+        for (page1Category of page1.body.categories) {
+          expect(page2Category).not.toEqual(page1Category);
+        }
+      }
+    });
+
+    test("Status:400 when p is not a number", async () => {
+      const response = await request(app).get("/api/categories?p=hello");
+      expect(response.status).toBe(400);
+
+      const response2 = await request(app).get("/api/categories?p=    ");
+      expect(response2.status).toBe(400);
+    });
+
+    test("Response body includes total_count key with total number of categories returned", async () => {
+      const response = await request(app).get("/api/categories?limit=2");
+      expect(response.status).toBe(200);
+      expect(
+        parseInt(response.body.total_count) > response.body.categories.length
+      ).toBe(true);
+    });
   });
 
   describe("method not allowed", () => {
