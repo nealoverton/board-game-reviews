@@ -6,6 +6,7 @@ const {
   selectCommentsByReviewId,
   insertComment,
   countTotalReviews,
+  countTotalComments,
 } = require("../models/reviews.models");
 
 exports.getReviews = async (req, res, next) => {
@@ -72,6 +73,7 @@ exports.patchReview = async (req, res, next) => {
 exports.getCommentsByReviewId = async (req, res, next) => {
   try {
     const { review_id } = req.params;
+    const { limit, p } = req.query;
 
     const existingReviews = await selectReviews();
     const validReviewIds = existingReviews.map((obj) => {
@@ -82,8 +84,14 @@ exports.getCommentsByReviewId = async (req, res, next) => {
       throw { status: 404, msg: "Id not found" };
     }
 
-    const comments = await selectCommentsByReviewId(review_id);
-    res.status(200).send({ comments });
+    const comments = await selectCommentsByReviewId(review_id, limit, p);
+    const total_count = await countTotalComments(review_id);
+    const response = {
+      comments: comments,
+      total_count: total_count,
+    };
+
+    res.status(200).send(response);
   } catch (err) {
     next(err);
   }

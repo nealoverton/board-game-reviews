@@ -245,11 +245,13 @@ describe("/api/reviews", () => {
       expect(response2.status).toBe(400);
     });
 
-    test("Responds with another list of 10 when page number is provided", async () => {
+    test("Responds with another list of 10 reviews when page number is provided", async () => {
       const page1 = await request(app).get("/api/reviews");
       const page2 = await request(app).get("/api/reviews?p=2");
-      for (review of page2.body.reviews) {
-        expect(page1.body.reviews.includes(review)).toBe(false);
+      for (page2Review of page2.body.reviews) {
+        for (page1Review of page1.body.reviews) {
+          expect(page2Review).not.toEqual(page1Review);
+        }
       }
     });
 
@@ -324,6 +326,64 @@ describe("/api/reviews/:review_id/comments", () => {
       const response = await request(app).get("/api/reviews/squirrel/comments");
       expect(response.status).toBe(400);
       expect(response.body.msg).toBe("Bad request");
+    });
+
+    test("Limits list of comments to number passed as limit query", async () => {
+      const response = await request(app).get(
+        "/api/reviews/2/comments?limit=2"
+      );
+      expect(response.body.comments).toHaveLength(2);
+
+      const response2 = await request(app).get("/api/reviews/2/comments");
+      expect(response2.body.comments.length > 2).toBe(true);
+    });
+
+    test("Status:400 when limit is not a number", async () => {
+      const response = await request(app).get(
+        "/api/reviews/2/comments?limit=hello"
+      );
+      expect(response.status).toBe(400);
+
+      const response2 = await request(app).get(
+        "/api/reviews/2/comments?limit=    "
+      );
+      expect(response2.status).toBe(400);
+    });
+
+    test("Responds with another list of (limit) comments when page number is provided", async () => {
+      const page1 = await request(app).get("/api/reviews/2/comments?limit=2");
+      const page2 = await request(app).get(
+        "/api/reviews/2/comments?limit=2&&p=2"
+      );
+
+      for (page2Comment of page2.body.comments) {
+        for (page1Comment of page1.body.comments) {
+          expect(page2Comment).not.toEqual(page1Comment);
+        }
+      }
+    });
+
+    test("Status:400 when p is not a number", async () => {
+      const response = await request(app).get(
+        "/api/reviews/2/comments?p=hello"
+      );
+      expect(response.status).toBe(400);
+
+      const response2 = await request(app).get(
+        "/api/reviews/2/comments?p=    "
+      );
+      expect(response2.status).toBe(400);
+    });
+
+    test("Response body includes total_count key with total number of reviews returned", async () => {
+      const response = await request(app).get("/api/reviews/2/comments");
+      const totalComments = response.body.comments.length;
+
+      const response2 = await request(app).get(
+        "/api/reviews/2/comments?limit=1"
+      );
+      expect(parseInt(response2.body.total_count)).toBe(totalComments);
+      expect(response2.body.comments).toHaveLength(1);
     });
   });
 

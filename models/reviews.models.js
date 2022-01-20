@@ -13,6 +13,16 @@ exports.countTotalReviews = async (category = "%") => {
   return total_count.rows[0].total_count;
 };
 
+exports.countTotalComments = async (review_id) => {
+  const sql = `SELECT COUNT(comment_id) AS total_count 
+    FROM comments
+    WHERE review_id = ${review_id}
+  ;`;
+
+  const total_count = await db.query(sql);
+  return total_count.rows[0].total_count;
+};
+
 exports.selectReviews = async (
   sort_by = "created_at",
   order = "ASC",
@@ -86,15 +96,18 @@ exports.updateReview = async (inc_votes, review_id) => {
   return review.rows[0];
 };
 
-exports.selectCommentsByReviewId = async (review_id) => {
+exports.selectCommentsByReviewId = async (review_id, limit = 10, p = 1) => {
+  const offset = (p - 1) * limit;
+
   const comments = await db.query(
     `SELECT comment_id, votes, created_at, author, body
     FROM comments
     WHERE review_id = $1
+    LIMIT $2
+    OFFSET $3
     ;`,
-    [review_id]
+    [review_id, limit, offset]
   );
-
   return comments.rows;
 };
 
