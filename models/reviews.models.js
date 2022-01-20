@@ -1,9 +1,24 @@
 const db = require("../db/connection.js");
 
+exports.countTotalReviews = async (category = "%") => {
+  const categorySections = category.split("'");
+  category = categorySections.join("''");
+
+  const sql = `SELECT COUNT(review_id) AS total_count 
+    FROM reviews
+    WHERE category ILIKE '${category}'
+  ;`;
+
+  const total_count = await db.query(sql);
+  return total_count.rows[0].total_count;
+};
+
 exports.selectReviews = async (
   sort_by = "created_at",
   order = "ASC",
-  category = "%"
+  category = "%",
+  limit = 10,
+  p = 1
 ) => {
   const sort_byWhitelist = [
     "owner",
@@ -15,6 +30,7 @@ exports.selectReviews = async (
     "votes",
     "comment_count",
   ];
+  const offset = (p - 1) * limit;
 
   if (!sort_byWhitelist.includes(sort_by)) {
     sort_by = "created_at";
@@ -29,12 +45,14 @@ exports.selectReviews = async (
 
   if (sort_by !== "comment_count") sort_by = "reviews." + sort_by;
 
-  const sql = `SELECT owner, title, reviews.review_id, review_img_url, category, reviews.created_at, reviews.votes, COUNT(comment_id) AS comment_count
+  let sql = `SELECT owner, title, reviews.review_id, review_img_url, category, reviews.created_at, reviews.votes, COUNT(comment_id) AS comment_count
   FROM reviews
   LEFT JOIN comments ON reviews.review_id = comments.review_id
   WHERE category ILIKE '${category}'
   GROUP BY reviews.review_id
   ORDER BY ${sort_by} ${order}
+  LIMIT ${limit}
+  OFFSET ${offset}
   ;`;
 
   const reviews = await db.query(sql);

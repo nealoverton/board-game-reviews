@@ -5,11 +5,12 @@ const {
   selectReviews,
   selectCommentsByReviewId,
   insertComment,
+  countTotalReviews,
 } = require("../models/reviews.models");
 
 exports.getReviews = async (req, res, next) => {
   try {
-    const { sort_by, order, category } = req.query;
+    const { sort_by, order, category, limit, p } = req.query;
 
     if (category) {
       const existingCategories = await selectCategories();
@@ -21,8 +22,14 @@ exports.getReviews = async (req, res, next) => {
       }
     }
 
-    const reviews = await selectReviews(sort_by, order, category);
-    res.status(200).send({ reviews });
+    const reviews = await selectReviews(sort_by, order, category, limit, p);
+    const total_count = await countTotalReviews(category);
+    const response = {
+      reviews: reviews,
+      total_count: total_count,
+    };
+
+    res.status(200).send(response);
   } catch (err) {
     next(err);
   }
@@ -48,7 +55,7 @@ exports.patchReview = async (req, res, next) => {
     const { inc_votes } = req.body;
     const { review_id } = req.params;
 
-    if (!inc_votes) throw { status: 400, msg: "Bad request: no inc_votes" };
+    if (!inc_votes) throw { status: 400, msg: "Bad request" };
 
     const review = await updateReview(inc_votes, review_id);
 
@@ -88,7 +95,7 @@ exports.postComment = async (req, res, next) => {
     const { username, body } = req.body;
 
     if (!username || !body) {
-      throw { status: 400, msg: "Bad request: username or body missing" };
+      throw { status: 400, msg: "Bad request" };
     }
 
     const comment = await insertComment(review_id, username, body);

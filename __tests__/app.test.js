@@ -105,7 +105,7 @@ describe("/api/reviews/:review_id", () => {
     test("Status:400 when body contains no inc_votes", async () => {
       const response = await request(app).patch("/api/reviews/1").send({});
       expect(response.status).toBe(400);
-      expect(response.body.msg).toBe("Bad request: no inc_votes");
+      expect(response.body.msg).toBe("Bad request");
     });
 
     test("Status:400 when inc_votes is not a number", async () => {
@@ -128,6 +128,7 @@ describe("/api/reviews", () => {
       const response = await request(app).get("/api/reviews");
       expect(response.status).toBe(200);
       response.body.reviews.forEach((review) => {
+        expect(isNaN(Date.parse(review.created_at))).toBe(false);
         expect(review).toEqual(
           expect.objectContaining({
             owner: expect.any(String),
@@ -135,7 +136,6 @@ describe("/api/reviews", () => {
             review_id: expect.any(Number),
             category: expect.any(String),
             review_img_url: expect.any(String),
-            created_at: expect.any(String),
             votes: expect.any(Number),
             comment_count: expect.any(String),
           })
@@ -224,6 +224,61 @@ describe("/api/reviews", () => {
       expect(response.status).toBe(400);
       expect(response.body.msg).toBe("Invalid category");
     });
+
+    test("Limits list of reviews to 10 per page by default", async () => {
+      const response = await request(app).get("/api/reviews");
+      expect(response.status).toBe(200);
+      expect(response.body.reviews).toHaveLength(10);
+    });
+
+    test("Limits list of reviews to number passed as limit query", async () => {
+      const response = await request(app).get("/api/reviews?limit=5");
+      expect(response.status).toBe(200);
+      expect(response.body.reviews).toHaveLength(5);
+    });
+
+    test("Status:400 when limit is not a number", async () => {
+      const response = await request(app).get("/api/reviews?limit=hello");
+      expect(response.status).toBe(400);
+
+      const response2 = await request(app).get("/api/reviews?limit=    ");
+      expect(response2.status).toBe(400);
+    });
+
+    test("Responds with another list of 10 when page number is provided", async () => {
+      const page1 = await request(app).get("/api/reviews");
+      const page2 = await request(app).get("/api/reviews?p=2");
+      for (review of page2.body.reviews) {
+        expect(page1.body.reviews.includes(review)).toBe(false);
+      }
+    });
+
+    test("Status:400 when p is not a number", async () => {
+      const response = await request(app).get("/api/reviews?p=hello");
+      expect(response.status).toBe(400);
+
+      const response2 = await request(app).get("/api/reviews?p=    ");
+      expect(response2.status).toBe(400);
+    });
+
+    test("Response body includes total_count key with total number of reviews returned", async () => {
+      const response = await request(app).get("/api/reviews");
+      expect(response.status).toBe(200);
+      expect(
+        parseInt(response.body.total_count) > response.body.reviews.length
+      ).toBe(true);
+    });
+
+    test("Total_count handles category filter", async () => {
+      const response1 = await request(app).get("/api/reviews");
+      const response2 = await request(app).get(
+        "/api/reviews?category=dexterity"
+      );
+
+      expect(response1.body.total_count > response2.body.total_count).toBe(
+        true
+      );
+    });
   });
 
   describe("method not allowed", () => {
@@ -241,11 +296,11 @@ describe("/api/reviews/:review_id/comments", () => {
       expect(response.status).toBe(200);
       expect(response.body.comments).toHaveLength(3);
       response.body.comments.forEach((comment) => {
+        expect(isNaN(Date.parse(comment.created_at))).toBe(false);
         expect(comment).toEqual(
           expect.objectContaining({
             comment_id: expect.any(Number),
             votes: expect.any(Number),
-            created_at: expect.any(String),
             author: expect.any(String),
             body: expect.any(String),
           })
@@ -289,11 +344,11 @@ describe("/api/reviews/:review_id/comments", () => {
       });
 
       expect(response.status).toBe(201);
+      expect(isNaN(Date.parse(response.body.comment.created_at))).toBe(false);
       expect(response.body.comment).toEqual(
         expect.objectContaining({
           comment_id: expect.any(Number),
           votes: 0,
-          created_at: expect.any(String),
           author: "dav3rid",
           body: "I agree",
           review_id: 1,
@@ -316,7 +371,7 @@ describe("/api/reviews/:review_id/comments", () => {
         body: "I agree",
       });
       expect(response.status).toBe(400);
-      expect(response.body.msg).toBe("Bad request: username or body missing");
+      expect(response.body.msg).toBe("Bad request");
     });
   });
 });
