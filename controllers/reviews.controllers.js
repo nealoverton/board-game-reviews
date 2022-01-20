@@ -61,7 +61,7 @@ exports.postReview = async (req, res, next) => {
     );
     review.comment_count = 0;
 
-    res.status(200).send({ review });
+    res.status(201).send({ review });
   } catch (err) {
     next(err);
   }

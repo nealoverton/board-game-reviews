@@ -23,3 +23,16 @@ exports.countTotalCategories = async () => {
 
   return total_count.rows[0].total_count;
 };
+
+exports.insertCategory = async (slug, description) => {
+  const category = await db.query(
+    `INSERT INTO categories
+    (slug, description)
+    VALUES ($1, $2)
+    RETURNING *
+    ;`,
+    [slug, description]
+  );
+
+  return category.rows[0];
+};

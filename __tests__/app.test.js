@@ -16,6 +16,25 @@ describe("/invalid_url", () => {
   });
 });
 
+describe("/api", () => {
+  describe("GET", () => {
+    test("Status:200 and list of available endpoints, methods, and queries", async () => {
+      const response = await request(app).get("/api");
+      const endpoints = await fs.readFile("./endpoints.json", "utf-8");
+      const parsedEndpoints = JSON.parse(endpoints);
+      expect(response.status).toBe(200);
+      expect(response.body.endpoints).toEqual(parsedEndpoints);
+    });
+  });
+
+  describe("method not allowed", () => {
+    test("Status:405", async () => {
+      const response = await request(app).delete("/api");
+      expect(response.status).toBe(405);
+    });
+  });
+});
+
 describe("/api/categories", () => {
   describe("GET", () => {
     test("Status:200 and list of categories", async () => {
@@ -72,6 +91,43 @@ describe("/api/categories", () => {
     });
   });
 
+  describe("POST", () => {
+    test("Status:201 and returns new category", async () => {
+      const response = await request(app).post("/api/categories").send({
+        slug: "Deck-building",
+        description:
+          "Games that involve drawing cards to construct a deck that defeats the opponent's",
+      });
+      expect(response.status).toBe(201);
+      expect(response.body.category).toEqual({
+        slug: "Deck-building",
+        description:
+          "Games that involve drawing cards to construct a deck that defeats the opponent's",
+      });
+    });
+
+    test("Status:400 when either value is missing from request body", async () => {
+      const response = await request(app).post("/api/categories").send({
+        slug: "Deck-building",
+      });
+      expect(response.status).toBe(400);
+
+      const response2 = await request(app).post("/api/categories").send({
+        description:
+          "Games that involve drawing cards to construct a deck that defeats the opponent's",
+      });
+      expect(response2.status).toBe(400);
+    });
+
+    test("Status:400 when slug is not unique", async () => {
+      const response = await request(app).post("/api/categories").send({
+        slug: "euro game",
+        description:
+          "Games that involve drawing cards to construct a deck that defeats the opponent's",
+      });
+      expect(response.status).toBe(400);
+    });
+  });
   describe("method not allowed", () => {
     test("Status:405", async () => {
       const response = await request(app).delete("/api/categories");
@@ -324,7 +380,7 @@ describe("/api/reviews", () => {
   });
 
   describe("POST", () => {
-    test("Status:200 and returns review object", async () => {
+    test("Status:201 and returns new review", async () => {
       const response = await request(app).post("/api/reviews").send({
         owner: "mallionaire",
         title: "Mine a Million",
@@ -332,7 +388,7 @@ describe("/api/reviews", () => {
         designer: "Peter and Philip Bergner",
         category: "euro game",
       });
-
+      expect(response.status).toBe(201);
       expect(isNaN(Date.parse(response.body.review.created_at))).toBe(false);
       expect(response.body.review).toEqual(
         expect.objectContaining({
@@ -621,25 +677,6 @@ describe("/api/comments/:comment_id", () => {
   describe("method not allowed", () => {
     test("Status:405", async () => {
       const response = await request(app).get("/api/comments/1");
-      expect(response.status).toBe(405);
-    });
-  });
-});
-
-describe("/api", () => {
-  describe("GET", () => {
-    test("Status:200 and list of available endpoints, methods, and queries", async () => {
-      const response = await request(app).get("/api");
-      const endpoints = await fs.readFile("./endpoints.json", "utf-8");
-      const parsedEndpoints = JSON.parse(endpoints);
-      expect(response.status).toBe(200);
-      expect(response.body.endpoints).toEqual(parsedEndpoints);
-    });
-  });
-
-  describe("method not allowed", () => {
-    test("Status:405", async () => {
-      const response = await request(app).delete("/api");
       expect(response.status).toBe(405);
     });
   });

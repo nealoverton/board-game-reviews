@@ -1,6 +1,9 @@
 const express = require("express");
 const { getEndpoints } = require("./controllers/api.controllers");
-const { getCategories } = require("./controllers/categories.controllers");
+const {
+  getCategories,
+  postCategory,
+} = require("./controllers/categories.controllers");
 const {
   deleteComment,
   patchComment,
@@ -31,6 +34,7 @@ app.use(express.json());
 app.get("/api", getEndpoints);
 
 app.get("/api/categories", getCategories);
+app.post("/api/categories", postCategory);
 
 app.get("/api/reviews", getReviews);
 app.post("/api/reviews", postReview);
