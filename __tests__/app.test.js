@@ -323,6 +323,85 @@ describe("/api/reviews", () => {
     });
   });
 
+  describe("POST", () => {
+    test("Status:200 and returns review object", async () => {
+      const response = await request(app).post("/api/reviews").send({
+        owner: "mallionaire",
+        title: "Mine a Million",
+        review_body: "A management sim ahead of its time",
+        designer: "Peter and Philip Bergner",
+        category: "euro game",
+      });
+
+      expect(isNaN(Date.parse(response.body.review.created_at))).toBe(false);
+      expect(response.body.review).toEqual(
+        expect.objectContaining({
+          owner: "mallionaire",
+          title: "Mine a Million",
+          review_body: "A management sim ahead of its time",
+          designer: "Peter and Philip Bergner",
+          category: "euro game",
+          review_id: expect.any(Number),
+          votes: 0,
+          comment_count: 0,
+        })
+      );
+    });
+
+    test("Status:400 when owner does not already exist in users", async () => {
+      const response = await request(app).post("/api/reviews").send({
+        owner: "lordcholmonderly",
+        title: "Mine a Million",
+        review_body: "A management sim ahead of its time",
+        designer: "Peter and Philip Bergner",
+        category: "euro game",
+      });
+
+      expect(response.status).toBe(400);
+    });
+
+    test("Status:400 when category does not already exist in categories", async () => {
+      const response = await request(app).post("/api/reviews").send({
+        owner: "mallionaire",
+        title: "Mine a Million",
+        review_body: "A management sim ahead of its time",
+        designer: "Peter and Philip Bergner",
+        category: "business game",
+      });
+
+      expect(response.status).toBe(400);
+    });
+
+    test("Status:400 when any key is missing from request body", async () => {
+      const response = await request(app).post("/api/reviews").send({
+        owner: "mallionaire",
+        title: "Mine a Million",
+        review_body: "A management sim ahead of its time",
+        category: "business game",
+      });
+
+      expect(response.status).toBe(400);
+
+      const response2 = await request(app).post("/api/reviews").send({
+        owner: "mallionaire",
+        title: "Mine a Million",
+        review_body: "A management sim ahead of its time",
+        designer: "Peter and Philip Bergner",
+      });
+
+      expect(response2.status).toBe(400);
+
+      const response3 = await request(app).post("/api/reviews").send({
+        owner: "mallionaire",
+        title: "Mine a Million",
+        designer: "Peter and Philip Bergner",
+        category: "business game",
+      });
+
+      expect(response3.status).toBe(400);
+    });
+  });
+
   describe("method not allowed", () => {
     test("Status:405", async () => {
       const response = await request(app).delete("/api/reviews");
@@ -427,15 +506,6 @@ describe("/api/reviews/:review_id/comments", () => {
     });
   });
 
-  describe("method not allowed", () => {
-    test("Status:405", async () => {
-      const response = await request(app).delete("/api/reviews/1/comments");
-      expect(response.status).toBe(405);
-    });
-  });
-});
-
-describe("/api/reviews/:review_id/comments", () => {
   describe("POST", () => {
     test("Status:201 and returns comment when passed valid review_id and comment values", async () => {
       const response = await request(app).post("/api/reviews/1/comments").send({
@@ -472,6 +542,13 @@ describe("/api/reviews/:review_id/comments", () => {
       });
       expect(response.status).toBe(400);
       expect(response.body.msg).toBe("Bad request");
+    });
+  });
+
+  describe("method not allowed", () => {
+    test("Status:405", async () => {
+      const response = await request(app).delete("/api/reviews/1/comments");
+      expect(response.status).toBe(405);
     });
   });
 });

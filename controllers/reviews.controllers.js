@@ -7,6 +7,7 @@ const {
   insertComment,
   countTotalReviews,
   countTotalComments,
+  insertReview,
 } = require("../models/reviews.models");
 
 exports.getReviews = async (req, res, next) => {
@@ -43,6 +44,24 @@ exports.getReviewById = async (req, res, next) => {
     } else {
       throw { status: 404, msg: "Id not found" };
     }
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.postReview = async (req, res, next) => {
+  try {
+    const { owner, title, review_body, designer, category } = req.body;
+    const review = await insertReview(
+      owner,
+      title,
+      review_body,
+      designer,
+      category
+    );
+    review.comment_count = 0;
+
+    res.status(200).send({ review });
   } catch (err) {
     next(err);
   }

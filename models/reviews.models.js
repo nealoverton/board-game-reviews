@@ -83,6 +83,25 @@ exports.selectReviewById = async (review_id) => {
   return review.rows[0];
 };
 
+exports.insertReview = async (
+  owner,
+  title,
+  review_body,
+  designer,
+  category
+) => {
+  const review = await db.query(
+    `INSERT INTO reviews
+    (owner, title, review_body, designer, category)
+    VALUES ($1,$2,$3,$4,$5)
+    RETURNING owner, title, review_body, designer, category, review_id, votes, created_at
+    ;`,
+    [owner, title, review_body, designer, category]
+  );
+
+  return review.rows[0];
+};
+
 exports.updateReview = async (inc_votes, review_id) => {
   const review = await db.query(
     `UPDATE reviews

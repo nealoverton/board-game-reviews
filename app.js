@@ -11,6 +11,7 @@ const {
 } = require("./controllers/users.controllers");
 const {
   getReviews,
+  postReview,
   getReviewById,
   patchReview,
   getCommentsByReviewId,
@@ -32,6 +33,7 @@ app.get("/api", getEndpoints);
 app.get("/api/categories", getCategories);
 
 app.get("/api/reviews", getReviews);
+app.post("/api/reviews", postReview);
 app.get("/api/reviews/:review_id", getReviewById);
 app.patch("/api/reviews/:review_id", patchReview);
 app.get("/api/reviews/:review_id/comments", getCommentsByReviewId);

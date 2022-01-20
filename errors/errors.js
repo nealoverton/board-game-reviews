@@ -7,7 +7,7 @@ exports.handleInvalidMethod = (req, res) => {
 };
 
 exports.handlePsqlErrors = (err, req, res, next) => {
-  const sqlErrorCodes = ["42601", "42703", "23503", "22P02", "2201X"];
+  const sqlErrorCodes = ["42601", "42703", "23503", "22P02", "2201X", "23502"];
   if (sqlErrorCodes.includes(err.code)) {
     res.status(400).send({ msg: "Bad request" });
   } else {
