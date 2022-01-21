@@ -39,7 +39,7 @@ Test and development data has been provided in the db/data folder. To seed your 
 
 ## Testing and Development
 
-To run the provided tests:
+Numerous test have been provided and separated by server endpoint. To run these tests use one of the following commands:
 
         $ npm run test-app
         $ npm run test-reviews
