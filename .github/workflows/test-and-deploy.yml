@@ -31,5 +31,34 @@ jobs:
       - name: install dependencies
         run: npm i
 
-      - name: test the app
-        run: PGDATABASE=boardgame-reviews PGUSER=boardgame-user PGPASSWORD=boardgame-password npm run test-app
+      - name: link to database
+        run: PGDATABASE=boardgame-reviews PGUSER=boardgame-user PGPASSWORD=boardgame-password
+
+      - name: test app
+        run: npm run test-app
+
+      - name: test reviews
+        run: npm run test-reviews
+
+      - name: test comments
+        run: npm run test-comments
+
+      - name: test users
+        run: npm run test-users
+
+      - name: test categories
+        run: npm run test-categories
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - name: checkout  and clone repo
+        uses: actions/checkout@v2
+
+      - name: Deploy to Heroku
+        uses: akhileshns/heroku-deploy@v3.12.12
+        with:
+          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+          heroku_app_name: ${{secrets.HEROKU_APP_NAME}}
+          heroku_email: ${{secrets.HEROKU_EMAIL}}
