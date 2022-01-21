@@ -6,7 +6,11 @@
   "scripts": {
     "setup-dbs": "psql -f ./db/setup.sql",
     "seed": "node ./db/seeds/run-seed.js",
-    "test": "jest",
+    "test-app": "jest __tests__/app.test.js",
+    "test-reviews": "jest __tests__/reviews.test.js",
+    "test-comments": "jest __tests__/comments.test.js",
+    "test-users": "jest __tests__/users.test.js",
+    "test-categories": "jest __tests__/categories.test.js",
     "start": "node listen.js",
     "seed:prod": "NODE_ENV=production DATABASE_URL=$(heroku config:get DATABASE_URL) npm run seed"
   },

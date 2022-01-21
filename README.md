@@ -41,7 +41,11 @@ Test and development data has been provided in the db/data folder. To seed your 
 
 To run the provided tests:
 
-        $ npm test
+        $ npm run test-app
+        $ npm run test-reviews
+        $ npm run test-comments
+        $ npm run test-users
+        $ npm run test-categories
 
 To open the dev environment
 
