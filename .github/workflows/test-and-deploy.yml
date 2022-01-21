@@ -14,3 +14,15 @@ jobs:
 
       - name: say bye
         run: echo "goodbye"
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout and clone repo
+        uses: actions/checkout@v2
+
+      - name: install dependencies
+        run: npm i
+
+      - name: test the app
+        run: npm run test-app
