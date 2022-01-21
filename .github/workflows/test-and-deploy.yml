@@ -32,22 +32,7 @@ jobs:
         run: npm i
 
       - name: link to database
-        run: PGDATABASE=boardgame-reviews PGUSER=boardgame-user PGPASSWORD=boardgame-password
-
-      - name: test app
-        run: npm run test-app
-
-      - name: test reviews
-        run: npm run test-reviews
-
-      - name: test comments
-        run: npm run test-comments
-
-      - name: test users
-        run: npm run test-users
-
-      - name: test categories
-        run: npm run test-categories
+        run: PGDATABASE=boardgame-reviews PGUSER=boardgame-user PGPASSWORD=boardgame-password npm run test-app
 
   deploy:
     runs-on: ubuntu-latest
