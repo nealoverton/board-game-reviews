@@ -33,13 +33,13 @@ describe("/api/users", () => {
 describe("/api/users/:username", () => {
   describe("GET", () => {
     test("Status:200 and the requested user when passed valid username", async () => {
-      const response = await request(app).get("/api/users/mallionaire");
+      const response = await request(app).get("/api/users/bainesface");
       expect(response.status).toBe(200);
       expect(response.body.user).toEqual({
-        username: "mallionaire",
-        name: "haz",
+        username: "bainesface",
+        name: "sarah",
         avatar_url:
-          "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
+          "https://avatars2.githubusercontent.com/u/24394918?s=400&v=4",
       });
     });
 

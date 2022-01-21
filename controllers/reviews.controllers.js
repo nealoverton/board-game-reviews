@@ -10,6 +10,11 @@ const {
   insertReview,
   removeReview,
 } = require("../models/reviews.models");
+const { selectUsers } = require("../models/users.models");
+const {
+  flagReviewIdInvalidity,
+  flagUnlistedUser,
+} = require("../utils/format-checkers");
 
 exports.getReviews = async (req, res, next) => {
   try {
@@ -21,7 +26,7 @@ exports.getReviews = async (req, res, next) => {
         return obj.slug;
       });
       if (!validCategoryNames.includes(category)) {
-        throw { status: 400, msg: "Invalid category" };
+        throw { status: 404, msg: "Category not found" };
       }
     }
 
@@ -73,7 +78,8 @@ exports.patchReview = async (req, res, next) => {
     const { inc_votes } = req.body;
     const { review_id } = req.params;
 
-    if (!inc_votes) throw { status: 400, msg: "Bad request" };
+    if (inc_votes && isNaN(inc_votes))
+      throw { status: 400, msg: "Bad request" };
 
     const review = await updateReview(inc_votes, review_id);
 
@@ -106,14 +112,8 @@ exports.getCommentsByReviewId = async (req, res, next) => {
     const { review_id } = req.params;
     const { limit, p } = req.query;
 
-    const existingReviews = await selectReviews();
-    const validReviewIds = existingReviews.map((obj) => {
-      return obj.review_id;
-    });
-
-    if (!isNaN(review_id) && !validReviewIds.includes(parseInt(review_id))) {
-      throw { status: 404, msg: "Id not found" };
-    }
+    const invalidReviewId = await flagReviewIdInvalidity(review_id);
+    if (invalidReviewId) throw invalidReviewId;
 
     const comments = await selectCommentsByReviewId(review_id, limit, p);
     const total_count = await countTotalComments(review_id);
@@ -130,9 +130,15 @@ exports.postComment = async (req, res, next) => {
     const { review_id } = req.params;
     const { username, body } = req.body;
 
+    const invalidReviewId = await flagReviewIdInvalidity(review_id);
+    if (invalidReviewId) throw invalidReviewId;
+
     if (!username || !body) {
       throw { status: 400, msg: "Bad request" };
     }
+
+    const userUnlisted = await flagUnlistedUser(username);
+    if (userUnlisted) throw userUnlisted;
 
     const comment = await insertComment(review_id, username, body);
     res.status(201).send({ comment });

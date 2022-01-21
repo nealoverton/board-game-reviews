@@ -25,7 +25,7 @@ exports.countTotalComments = async (review_id) => {
 
 exports.selectReviews = async (
   sort_by = "created_at",
-  order = "ASC",
+  order = "DESC",
   category = "%",
   limit = 10,
   p = 1
@@ -46,8 +46,8 @@ exports.selectReviews = async (
     sort_by = "created_at";
   }
 
-  if (order.toUpperCase() !== "DESC") {
-    order = "ASC";
+  if (order.toUpperCase() !== "ASC") {
+    order = "DESC";
   }
 
   const categorySections = category.split("'");
@@ -102,7 +102,7 @@ exports.insertReview = async (
   return review.rows[0];
 };
 
-exports.updateReview = async (inc_votes, review_id) => {
+exports.updateReview = async (inc_votes = 0, review_id) => {
   const review = await db.query(
     `UPDATE reviews
     SET votes = votes + $1

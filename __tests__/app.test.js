@@ -13,7 +13,6 @@ describe("/invalid_url", () => {
     const response = await request(app).get("/invalid_url");
     expect(response.status).toBe(404);
     expect(response.body.msg).toBe("Invalid URL");
-    //hello
   });
 });
 

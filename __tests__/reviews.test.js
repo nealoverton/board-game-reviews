@@ -71,12 +71,15 @@ describe("/api/reviews/:review_id", () => {
 
     test("Status:400 when body contains no inc_votes", async () => {
       const response = await request(app).patch("/api/reviews/1").send({});
-      expect(response.status).toBe(400);
-      expect(response.body.msg).toBe("Bad request");
+      expect(response.status).toBe(200);
+      expect(response.body.review.review_id).toBe(1);
+      expect(response.body.review.votes).toBe(1);
     });
 
     test("Status:400 when inc_votes is not a number", async () => {
-      const response = await request(app).patch("/api/reviews/1").send({});
+      const response = await request(app)
+        .patch("/api/reviews/1")
+        .send({ inc_votes: "squirrel" });
       expect(response.status).toBe(400);
     });
   });
@@ -133,29 +136,39 @@ describe("/api/reviews", () => {
     test("Sorts results by date as default", async () => {
       const response = await request(app).get("/api/reviews");
       expect(response.status).toBe(200);
-      expect(response.body.reviews).toBeSortedBy("created_at");
+      expect(response.body.reviews).toBeSortedBy("created_at", {
+        descending: true,
+      });
     });
 
     test("?sort_by= sorts results by valid column name", async () => {
       const response = await request(app).get("/api/reviews?sort_by=votes");
       expect(response.status).toBe(200);
-      expect(response.body.reviews).toBeSortedBy("votes");
+      expect(response.body.reviews).toBeSortedBy("votes", {
+        descending: true,
+      });
 
       const response2 = await request(app).get("/api/reviews?sort_by=category");
       expect(response2.status).toBe(200);
-      expect(response2.body.reviews).toBeSortedBy("category");
+      expect(response2.body.reviews).toBeSortedBy("category", {
+        descending: true,
+      });
 
       const response3 = await request(app).get(
-        "/api/reviews?sort_by=comment_count"
+        "/api/reviews?sort_by=owner&&limit=50"
       );
       expect(response3.status).toBe(200);
-      expect(response3.body.reviews).toBeSortedBy("comment_count");
+      expect(response3.body.reviews).toBeSortedBy("owner", {
+        descending: true,
+      });
     });
 
     test("?sort_by= defaults to date when passed invalid sort_by", async () => {
       const response = await request(app).get("/api/reviews?sort_by=squirrels");
       expect(response.status).toBe(200);
-      expect(response.body.reviews).toBeSortedBy("created_at");
+      expect(response.body.reviews).toBeSortedBy("created_at", {
+        descending: true,
+      });
     });
 
     test("?order= sorts in DESC when specified", async () => {
@@ -174,10 +187,12 @@ describe("/api/reviews", () => {
       });
     });
 
-    test("?order= defaults to ASC when passed invalid order query", async () => {
+    test("?order= defaults to DESC when passed invalid order query", async () => {
       const response = await request(app).get("/api/reviews?order=squirrel");
       expect(response.status).toBe(200);
-      expect(response.body.reviews).toBeSortedBy("created_at");
+      expect(response.body.reviews).toBeSortedBy("created_at", {
+        descending: true,
+      });
     });
 
     test("?category= filters results by single-word category", async () => {
@@ -204,12 +219,12 @@ describe("/api/reviews", () => {
       expect(response.body.reviews).toHaveLength(0);
     });
 
-    test("?category= returns 400 error when passed invalid category", async () => {
+    test("?category= returns 404 error when passed invalid category", async () => {
       const response = await request(app).get(
         "/api/reviews?category=deckbuilding"
       );
-      expect(response.status).toBe(400);
-      expect(response.body.msg).toBe("Invalid category");
+      expect(response.status).toBe(404);
+      expect(response.body.msg).toBe("Category not found");
     });
 
     test("Limits list of reviews to 10 per page by default", async () => {
@@ -383,7 +398,7 @@ describe("/api/reviews/:review_id/comments", () => {
     });
 
     test("Status:404 and when passed valid but non-existent review_id", async () => {
-      const response = await request(app).get("/api/reviews/1000/comments");
+      const response = await request(app).get("/api/reviews/10000/comments");
       expect(response.status).toBe(404);
       expect(response.body.msg).toBe("Id not found");
     });
@@ -450,6 +465,70 @@ describe("/api/reviews/:review_id/comments", () => {
       );
       expect(parseInt(response2.body.total_count)).toBe(totalComments);
       expect(response2.body.comments).toHaveLength(1);
+    });
+  });
+
+  describe("POST", () => {
+    test("Status:201 and returns comment when passed valid review_id and comment values", async () => {
+      const response = await request(app).post("/api/reviews/1/comments").send({
+        username: "dav3rid",
+        body: "I agree",
+      });
+
+      expect(response.status).toBe(201);
+      expect(isNaN(Date.parse(response.body.comment.created_at))).toBe(false);
+      expect(response.body.comment).toEqual(
+        expect.objectContaining({
+          comment_id: expect.any(Number),
+          votes: 0,
+          author: "dav3rid",
+          body: "I agree",
+          review_id: 1,
+        })
+      );
+    });
+
+    test("Status:404 when passed valid but non-existent review_id", async () => {
+      const response = await request(app)
+        .post("/api/reviews/1000/comments")
+        .send({
+          username: "dav3rid",
+          body: "I agree",
+        });
+      expect(response.status).toBe(404);
+    });
+
+    test("Status:400 when passed invalid review_id", async () => {
+      const response = await request(app)
+        .post("/api/reviews/squirrel/comments")
+        .send({
+          username: "dav3rid",
+          body: "I agree",
+        });
+      expect(response.status).toBe(400);
+    });
+
+    test("Status:404 when passed non-existent username", async () => {
+      const response = await request(app).post("/api/reviews/1/comments").send({
+        username: "littleblackcat",
+        body: "I agree",
+      });
+      expect(response.status).toBe(404);
+    });
+
+    test("Status:400 when passed body without necessary keys", async () => {
+      const response = await request(app).post("/api/reviews/1/comments").send({
+        body: "I agree",
+      });
+      expect(response.status).toBe(400);
+      expect(response.body.msg).toBe("Bad request");
+    });
+  });
+
+  describe("method not allowed", () => {
+    test("Status:405", async () => {
+      const response = await request(app).delete("/api/reviews/1/comments");
+      expect(response.status).toBe(405);
     });
   });
 });
