@@ -6,7 +6,7 @@
 
 Boardgame Reviews is a Node.js/Express based API providing user-generated board game reviews to be voted and commented upon. All data is formatted in JSON and stored in a PostgreSQL database.
 
-The live version can be accessed [here](https://boardgame-reviews.herokuapp.com/)
+The live version can be accessed [here](https://boardgame-reviews.herokuapp.com/api)
 
 ## Requirements
 

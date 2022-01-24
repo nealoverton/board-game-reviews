@@ -12,7 +12,7 @@ exports.removeComment = async (comment_id) => {
   return comment.rows[0];
 };
 
-exports.updateComment = async (comment_id, inc_votes) => {
+exports.updateComment = async (comment_id, inc_votes = 0) => {
   const comment = await db.query(
     `UPDATE comments
     SET votes = votes + $2

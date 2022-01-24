@@ -43,7 +43,7 @@ describe("/api/users/:username", () => {
       });
     });
 
-    test("Status:404 when passed valid username", async () => {
+    test("Status:404 when passed non-existent username", async () => {
       const response = await request(app).get("/api/users/puffin");
       expect(response.status).toBe(404);
 

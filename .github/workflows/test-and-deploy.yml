@@ -6,15 +6,6 @@ on:
       - main
 
 jobs:
-  greeting:
-    runs-on: ubuntu-latest
-    steps:
-      - name: say hi
-        run: echo "hello from CI"
-
-      - name: say bye
-        run: echo "goodbye"
-
   test:
     runs-on: ubuntu-latest
     steps:

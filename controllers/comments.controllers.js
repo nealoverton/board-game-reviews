@@ -21,8 +21,6 @@ exports.patchComment = async (req, res, next) => {
     const { comment_id } = req.params;
     const { inc_votes } = req.body;
 
-    if (!inc_votes) throw { status: 400, msg: "Bad request: no inc_votes" };
-
     const comment = await updateComment(comment_id, inc_votes);
 
     if (comment) {

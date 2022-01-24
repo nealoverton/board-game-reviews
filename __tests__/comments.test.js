@@ -60,14 +60,23 @@ describe("/api/comments/:comment_id", () => {
       expect(response.body.msg).toBe("Bad request");
     });
 
-    test("Status:400 when body contains no inc_votes", async () => {
+    test("Status:200 and returns unchanged comment when body contains no inc_votes", async () => {
       const response = await request(app).patch("/api/comments/1").send({});
-      expect(response.status).toBe(400);
-      expect(response.body.msg).toBe("Bad request: no inc_votes");
+      expect(response.status).toBe(200);
+      expect(response.body.comment).toEqual({
+        comment_id: 1,
+        body: "I loved this game too!",
+        votes: 16,
+        author: "bainesface",
+        review_id: 2,
+        created_at: new Date(1511354613389).toJSON(),
+      });
     });
 
     test("Status:400 when inc_votes is not a number", async () => {
-      const response = await request(app).patch("/api/comments/1").send({});
+      const response = await request(app)
+        .patch("/api/comments/1")
+        .send({ inc_votes: "squirrel" });
       expect(response.status).toBe(400);
     });
   });

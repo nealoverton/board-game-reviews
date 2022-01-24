@@ -1,7 +1,7 @@
 {
-  "name": "be-nc-games",
+  "name": "board-game-reviews",
   "version": "1.0.0",
-  "description": "bc-nc-games",
+  "description": "board-game-reviews",
   "main": "index.js",
   "scripts": {
     "setup-dbs": "psql -f ./db/setup.sql",
