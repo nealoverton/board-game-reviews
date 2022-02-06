@@ -20,6 +20,7 @@ exports.getReviews = async (req, res, next) => {
   try {
     const { sort_by, order, category, limit, p } = req.query;
 
+    if (/;/.test(category)) throw { status: 400, msg: "No ; allowed" };
     if (category) {
       const existingCategories = await selectCategories();
       const validCategoryNames = existingCategories.map((obj) => {
@@ -75,13 +76,13 @@ exports.postReview = async (req, res, next) => {
 
 exports.patchReview = async (req, res, next) => {
   try {
-    const { inc_votes } = req.body;
+    const { inc_votes, review_body } = req.body;
     const { review_id } = req.params;
 
     if (inc_votes && isNaN(inc_votes))
       throw { status: 400, msg: "Bad request" };
 
-    const review = await updateReview(inc_votes, review_id);
+    const review = await updateReview(inc_votes, review_body, review_id);
 
     if (review) {
       res.status(200).send({ review });

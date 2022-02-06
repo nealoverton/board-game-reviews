@@ -102,15 +102,21 @@ exports.insertReview = async (
   return review.rows[0];
 };
 
-exports.updateReview = async (inc_votes = 0, review_id) => {
-  const review = await db.query(
-    `UPDATE reviews
-    SET votes = votes + $1
-    WHERE review_id = $2
-    RETURNING *
-    ;`,
-    [inc_votes, review_id]
-  );
+exports.updateReview = async (inc_votes = 0, review_body, review_id) => {
+  let bodyUpdate = "";
+  if (review_body) {
+    const reviewBodySections = review_body.split("'");
+    review_body = reviewBodySections.join("''");
+    bodyUpdate = `, review_body = '${review_body}'`;
+  }
+
+  const sql = `UPDATE reviews
+  SET votes = votes + $1${bodyUpdate}
+  WHERE review_id = $2
+  RETURNING *
+  ;`;
+
+  const review = await db.query(sql, [inc_votes, review_id]);
 
   return review.rows[0];
 };

@@ -82,6 +82,38 @@ describe("/api/reviews/:review_id", () => {
         .send({ inc_votes: "squirrel" });
       expect(response.status).toBe(400);
     });
+
+    test("Status:200 and updated review when passed new body", async () => {
+      const response = await request(app)
+        .patch("/api/reviews/1")
+        .send({ review_body: "Actually, this" });
+
+      expect(response.status).toBe(200);
+      expect(response.body.review.review_body).toBe("Actually, this");
+    });
+
+    test("Status:200 and updated review when review_body contains apostrophe", async () => {
+      const response = await request(app)
+        .patch("/api/reviews/1")
+        .send({ review_body: "Don't think we'll play again" });
+
+      expect(response.status).toBe(200);
+      expect(response.body.review.review_body).toBe(
+        "Don't think we'll play again"
+      );
+    });
+
+    test("Resists injection attempts", async () => {
+      const response = await request(app).patch("/api/reviews/1").send({
+        review_body:
+          "hello'; DROP TABLE reviews; UPDATE reviews SET review_body = 'got you' WHERE review_id = 1",
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.body.review.review_body).toBe(
+        "hello'; DROP TABLE reviews; UPDATE reviews SET review_body = 'got you' WHERE review_id = 1"
+      );
+    });
   });
 
   describe("DELETE", () => {

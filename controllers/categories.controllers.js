@@ -20,6 +20,7 @@ exports.getCategories = async (req, res, next) => {
 exports.postCategory = async (req, res, next) => {
   try {
     const { slug, description } = req.body;
+    if (/;/.test(slug)) throw { status: 400, msg: "No ; allowed" };
     const category = await insertCategory(slug, description);
     res.status(201).send({ category });
   } catch (err) {
