@@ -79,6 +79,35 @@ describe("/api/comments/:comment_id", () => {
         .send({ inc_votes: "squirrel" });
       expect(response.status).toBe(400);
     });
+
+    test("Status:200 and updated comment when passed new body", async () => {
+      const response = await request(app)
+        .patch("/api/comments/1")
+        .send({ body: "Actually, this" });
+
+      expect(response.status).toBe(200);
+      expect(response.body.comment.body).toBe("Actually, this");
+    });
+
+    test("Status:200 and updated comment when body contains apostrophe", async () => {
+      const response = await request(app)
+        .patch("/api/comments/1")
+        .send({ body: "I don't think it's that great" });
+
+      expect(response.status).toBe(200);
+      expect(response.body.comment.body).toBe("I don't think it's that great");
+    });
+
+    test("Resists injection attempts", async () => {
+      const response = await request(app).patch("/api/comments/1").send({
+        body: "hello'; DROP TABLE comments; UPDATE comments SET body = 'got you' WHERE comment_id = 1",
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.body.comment.body).toBe(
+        "hello'; DROP TABLE comments; UPDATE comments SET body = 'got you' WHERE comment_id = 1"
+      );
+    });
   });
 
   describe("method not allowed", () => {

@@ -19,9 +19,9 @@ exports.deleteComment = async (req, res, next) => {
 exports.patchComment = async (req, res, next) => {
   try {
     const { comment_id } = req.params;
-    const { inc_votes } = req.body;
+    const { inc_votes, body } = req.body;
 
-    const comment = await updateComment(comment_id, inc_votes);
+    const comment = await updateComment(comment_id, body, inc_votes);
 
     if (comment) {
       res.status(200).send({ comment });
