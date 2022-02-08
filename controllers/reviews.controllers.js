@@ -18,7 +18,7 @@ const {
 
 exports.getReviews = async (req, res, next) => {
   try {
-    const { sort_by, order, category, limit, p } = req.query;
+    const { sort_by, order, category, owner, limit, p } = req.query;
 
     if (/;/.test(category)) throw { status: 400, msg: "No ; allowed" };
     if (category) {
@@ -31,8 +31,18 @@ exports.getReviews = async (req, res, next) => {
       }
     }
 
-    const reviews = await selectReviews(sort_by, order, category, limit, p);
-    const total_count = await countTotalReviews(category);
+    const userUnlisted = await flagUnlistedUser(owner);
+    if (userUnlisted) throw userUnlisted;
+
+    const reviews = await selectReviews(
+      sort_by,
+      order,
+      category,
+      owner,
+      limit,
+      p
+    );
+    const total_count = await countTotalReviews(category, owner);
     const response = { reviews, total_count };
 
     res.status(200).send(response);

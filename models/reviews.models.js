@@ -1,12 +1,15 @@
 const db = require("../db/connection.js");
 
-exports.countTotalReviews = async (category = "%") => {
+exports.countTotalReviews = async (category = "%", owner = "%") => {
   const categorySections = category.split("'");
   category = categorySections.join("''");
+  const ownerSections = owner.split("'");
+  owner = ownerSections.join("''");
 
   const sql = `SELECT COUNT(review_id) AS total_count 
     FROM reviews
     WHERE category ILIKE '${category}'
+    AND reviews.owner ILIKE '${owner}'
   ;`;
 
   const total_count = await db.query(sql);
@@ -27,6 +30,7 @@ exports.selectReviews = async (
   sort_by = "created_at",
   order = "DESC",
   category = "%",
+  owner = "%",
   limit = 10,
   p = 1
 ) => {
@@ -52,6 +56,8 @@ exports.selectReviews = async (
 
   const categorySections = category.split("'");
   category = categorySections.join("''");
+  const ownerSections = owner.split("'");
+  owner = ownerSections.join("''");
 
   if (sort_by !== "comment_count") sort_by = "reviews." + sort_by;
 
@@ -59,6 +65,7 @@ exports.selectReviews = async (
   FROM reviews
   LEFT JOIN comments ON reviews.review_id = comments.review_id
   WHERE category ILIKE '${category}'
+  AND reviews.owner ILIKE '${owner}'
   GROUP BY reviews.review_id
   ORDER BY ${sort_by} ${order}
   LIMIT ${limit}

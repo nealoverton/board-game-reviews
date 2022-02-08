@@ -259,6 +259,29 @@ describe("/api/reviews", () => {
       expect(response.body.msg).toBe("Category not found");
     });
 
+    test("?owner= filters results by existing username", async () => {
+      const response = await request(app).get(
+        "/api/reviews?owner=philippaclaire9"
+      );
+      expect(response.status).toBe(200);
+      expect(response.body.reviews.length).toBe(1);
+      expect(response.body.total_count).toBe("1");
+    });
+
+    test("?owner= returns empty array when valid username has no reviews", async () => {
+      const response = await request(app).get("/api/reviews?owner=dav3rid");
+      expect(response.status).toBe(200);
+      expect(response.body.reviews).toHaveLength(0);
+    });
+
+    test("?owner= returns 404 error when passed non-existent username", async () => {
+      const response = await request(app).get(
+        "/api/reviews?owner=littleblackcat"
+      );
+      expect(response.status).toBe(404);
+      expect(response.body.msg).toBe("Username not found");
+    });
+
     test("Limits list of reviews to 10 per page by default", async () => {
       const response = await request(app).get("/api/reviews");
       expect(response.status).toBe(200);
