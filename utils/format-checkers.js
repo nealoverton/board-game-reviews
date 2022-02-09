@@ -2,7 +2,7 @@ const { selectReviews } = require("../models/reviews.models");
 const { selectUsers } = require("../models/users.models");
 
 exports.flagReviewIdInvalidity = async (review_id) => {
-  const existingReviews = await selectReviews();
+  const existingReviews = await selectReviews(null, null, null, null, 1000);
   const validReviewIds = existingReviews.map((obj) => {
     return obj.review_id;
   });
