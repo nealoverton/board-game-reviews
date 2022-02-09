@@ -147,7 +147,7 @@ exports.selectCommentsByReviewId = async (review_id, limit = 10, p = 1) => {
     `SELECT comment_id, votes, created_at, author, body
     FROM comments
     WHERE review_id = $1
-    ORDER BY created_at
+    ORDER BY created_at DESC
     LIMIT $2
     OFFSET $3
     ;`,
