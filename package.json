@@ -12,7 +12,7 @@
     "test-users": "jest __tests__/users.test.js",
     "test-categories": "jest __tests__/categories.test.js",
     "start": "node listen.js",
-    "seed:prod": "NODE_ENV=production DATABASE_URL=$(heroku config:get DATABASE_URL) npm run seed"
+    "seed:prod": "NODE_ENV=production DATABASE_URL=postgres://gphhtrkm:Cn6NCMrzjvyKcIn5k9Fz7HDqjtezk2Zv@manny.db.elephantsql.com/gphhtrkm npm run seed"
   },
   "repository": {
     "type": "git",
