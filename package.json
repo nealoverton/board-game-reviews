@@ -11,7 +11,7 @@
     "test-comments": "jest __tests__/comments.test.js",
     "test-users": "jest __tests__/users.test.js",
     "test-categories": "jest __tests__/categories.test.js",
-    "start": "node listen.js",
+    "start": "node index.js",
     "seed:prod": "NODE_ENV=production DATABASE_URL=postgres://gphhtrkm:Cn6NCMrzjvyKcIn5k9Fz7HDqjtezk2Zv@manny.db.elephantsql.com/gphhtrkm npm run seed"
   },
   "repository": {
